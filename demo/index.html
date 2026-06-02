@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MiteOrder — あなたの活動を、世界観ごとデザインします。</title>
+
+  <!--
+    フォント構成（EasyReply・〆スケと共通）
+    - Tilt Warp   : ロゴ用
+    - BIZ UDGothic: 本文用
+    - Kaisei Opti : LP見出し用
+  -->
+  <link href="https://fonts.googleapis.com/css2?family=Tilt+Warp&family=BIZ+UDGothic:wght@400;700&family=Kaisei+Opti:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ============================================================
+       CSS変数 — カラーピッカーで動的に書き換わる
+       ここを変更すればサイト全体の色が変わる設計
+       ============================================================ */
+    :root {
+      --color-bg:            #F0FAFB;  /* ページ背景 */
+      --color-bg-alt:        #E4F5F8;  /* 交互セクション背景 */
+      --color-card:          #FFFFFF;  /* カード・フォーム背景 */
+      --color-primary:       #00AFCC;  /* メインカラー（ロゴ色） */
+      --color-primary-dark:  #007A90;  /* メインカラー 濃い版（hover等） */
+      --color-primary-light: #E0F7FC;  /* メインカラー 薄い版（バッジ・タグ等） */
+      --color-accent:        #D4A853;  /* アクセント（ゴールド） */
+      --color-text:          #0A3D4D;  /* 本文テキスト */
+      --color-text-sub:      #4A7A85;  /* サブテキスト・ラベル */
+      --color-border:        #B8E0EA;  /* ボーダー全般 */
+      --color-nav:           #FFFFFF;  /* ナビ背景 */
+    }
+
+    /* ============================================================
+       リセット・ベース
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'BIZ UDGothic', sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.7;
+    }
+
+    img  { max-width: 100%; display: block; }
+    a    { text-decoration: none; color: inherit; }
+    button { cursor: pointer; font-family: inherit; }
+    ul, ol { list-style: none; }
+
+    /* ============================================================
+       共通レイアウト
+       ============================================================ */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    section { padding: 72px 0; }
+
+    /* セクション頭のラベル（WORKS / SERVICE 等） */
+    .label {
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--color-primary);
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    /* セクション見出し */
+    .section-title {
+      font-family: 'Kaisei Opti', serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--color-text);
+      line-height: 1.35;
+      margin-bottom: 8px;
+    }
+
+    /* セクションサブテキスト */
+    .section-sub {
+      font-size: 14px;
+      color: var(--color-text-sub);
+      margin-bottom: 40px;
+      line-height: 1.8;
+    }
+
+    /* ============================================================
+       ボタン共通
+       ============================================================ */
+    .btn-primary {
+      display: inline-block;
+      background: var(--color-primary);
+      color: #fff;
+      border: none;
+      padding: 11px 22px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      transition: background 0.2s;
+    }
+    .btn-primary:hover { background: var(--color-primary-dark); }
+
+    .btn-outline {
+      display: inline-block;
+      background: transparent;
+      color: var(--color-primary);
+      border: 1.5px solid var(--color-primary);
+      padding: 10px 22px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      transition: all 0.2s;
+    }
+    .btn-outline:hover { background: var(--color-primary-light); }
+
+    /* ============================================================
+       ナビゲーション
+       ============================================================ */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--color-nav);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
+
+    /* ブランド（ロゴ＋ミテオーダー＋キャッチ） */
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .nav-logo {
+      font-family: 'Tilt Warp', cursive;
+      font-size: 20px;
+      color: var(--color-primary);
+      letter-spacing: 1px;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.15;
+    }
+    .nav-logo-ja {
+      font-family: 'BIZ UDGothic', sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: var(--color-text-sub);
+    }
+    .nav-tagline {
+      font-size: 11px;
+      color: var(--color-text-sub);
+      border-left: 1px solid var(--color-border);
+      padding-left: 14px;
+      line-height: 1.6;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      font-size: 13px;
+      color: var(--color-text-sub);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--color-primary); }
+
+    /* ============================================================
+       ヒーローセクション — コラージュ型
+       ============================================================ */
+    .hero {
+      padding: 100px 0 100px;
+      min-height: 580px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* コラージュ画像レイヤー（テキストの背後） */
+    .collage-bg {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .collage-item {
+      position: absolute;
+      width: 110px;
+      cursor: pointer;
+      pointer-events: all;
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 1;
+      opacity: 0.82;
+    }
+    .collage-item:hover {
+      transform: rotate(0deg) scale(1.1) translateY(-10px) !important;
+      z-index: 50;
+    }
+    /* 実画像：PNG輪郭に沿ったdrop-shadow */
+    .collage-item img {
+      width: 100%; height: 100%; object-fit: contain; display: block;
+      filter: drop-shadow(0 8px 20px rgba(0,0,0,0.38));
+      transition: filter 0.3s;
+    }
+    .collage-item:hover img {
+      filter: drop-shadow(0 18px 36px rgba(0,0,0,0.48));
+    }
+    /* プレースホルダー：角丸ありの色付きブロック */
+    .collage-placeholder {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; color: rgba(255,255,255,0.45); font-weight: 700;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.22);
+    }
+    .collage-upload-btn {
+      display: none;
+      position: absolute; inset: 0;
+      background: rgba(0,175,204,0.78);
+      align-items: center; justify-content: center;
+      font-size: 32px; color: #fff; cursor: pointer;
+    }
+    body.admin-mode .collage-upload-btn { display: flex; }
+    body.admin-mode .collage-item { outline: 2px dashed var(--color-primary); }
+    .admin-badge {
+      display: none;
+      position: fixed; top: 68px; left: 50%; transform: translateX(-50%);
+      background: var(--color-primary); color: #fff;
+      font-size: 12px; font-weight: 700; padding: 5px 20px;
+      border-radius: 99px; z-index: 999; pointer-events: none;
+      white-space: nowrap;
+    }
+    body.admin-mode .admin-badge { display: block; }
+
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 56px;
+      align-items: center;
+      position: relative;
+      z-index: 5;
+    }
+    /* テキスト列：コラージュが透けても読めるよう背景を入れる */
+    .hero-inner > div:first-child {
+      background: rgba(240, 250, 251, 0.75);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border-radius: 16px;
+      padding: 32px 28px;
+    }
+
+    /* モバイル：横スクロールストリップ */
+    @media (max-width: 768px) {
+      .hero { padding: 0 0 48px; overflow: visible; }
+      .collage-bg {
+        position: relative; inset: auto;
+        height: 150px;
+        display: flex; align-items: center; gap: 10px;
+        padding: 10px 16px;
+        overflow-x: auto; overflow-y: hidden;
+        scrollbar-width: none;
+        pointer-events: all;
+        margin-bottom: 28px;
+      }
+      .collage-bg::-webkit-scrollbar { display: none; }
+      .collage-item {
+        position: relative !important;
+        inset: auto !important;
+        width: 88px !important;
+        height: 108px !important;
+        flex-shrink: 0;
+        transform: rotate(3deg) !important;
+      }
+      .collage-item:nth-child(even) { transform: rotate(-3deg) !important; }
+      .collage-item:hover { transform: scale(1.06) rotate(0deg) !important; }
+      .hero-inner { grid-template-columns: 1fr; gap: 24px; }
+      .hero-cards { display: none; }
+      .hero-title { font-size: 28px; }
+    }
+
+    /* 受付ステータスバッジ */
+    .hero-badge {
+      display: inline-block;
+      font-size: 11px;
+      background: var(--color-primary-light);
+      color: var(--color-primary-dark);
+      padding: 4px 14px;
+      border-radius: 99px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .hero-title {
+      font-family: 'Kaisei Opti', serif;
+      font-size: 38px;
+      font-weight: 700;
+      line-height: 1.3;
+      color: var(--color-text);
+      margin-bottom: 16px;
+    }
+    .hero-title .accent { color: var(--color-primary); }
+
+    .hero-desc {
+      font-size: 14px;
+      color: var(--color-text-sub);
+      margin-bottom: 32px;
+      line-height: 1.8;
+    }
+
+    .hero-btns { display: flex; gap: 12px; }
+
+    /* 右：ブランドパネル */
+    .hero-brand {
+      background: var(--color-text);
+      border-radius: 20px;
+      padding: 40px 32px;
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-brand::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 30% 60%, rgba(0,175,204,0.18) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-brand-inner { text-align: center; position: relative; }
+    .hero-brand-logo {
+      font-family: 'Tilt Warp', cursive;
+      font-size: 26px;
+      color: var(--color-primary);
+      letter-spacing: 2px;
+      margin-bottom: 14px;
+    }
+    .hero-brand-line {
+      width: 44px; height: 2px;
+      background: var(--color-accent);
+      border-radius: 1px;
+      margin: 0 auto 14px;
+    }
+    .hero-brand-sub {
+      font-size: 10px;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+    .hero-brand-mark {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.07);
+      border: 1px dashed rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; color: rgba(255,255,255,0.3);
+      letter-spacing: 1px; text-transform: uppercase;
+      position: relative;
+    }
+
+    /* 右側：実績ミニカードグリッド */
+    .hero-cards {
+      background: var(--color-card);
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid var(--color-border);
+    }
+
+    .hero-cards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .hero-card {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+    }
+
+    .hero-card-thumb {
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .hero-card-thumb img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1;
+    }
+    .hero-card-thumb span {
+      font-size: 11px;
+      color: rgba(255,255,255,0.75);
+      font-weight: 700;
+      position: relative;
+      z-index: 0;
+    }
+
+    .hero-card-info {
+      padding: 8px 12px;
+      background: var(--color-card);
+    }
+    .hero-card-name  { font-size: 12px; font-weight: 700; color: var(--color-text); margin-bottom: 2px; }
+    .hero-card-tags  { font-size: 10px; color: var(--color-text-sub); }
+
+    /* ============================================================
+       実績セクション (WORKS) — フィーチャーカード型
+       ============================================================ */
+    .works { background: var(--color-card); }
+
+    .works-list { display: flex; flex-direction: column; gap: 32px; }
+
+    .feature-card {
+      display: grid;
+      grid-template-columns: 60% 40%;
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .feature-main-wrap {
+      position: relative;
+      height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .feature-main-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1;
+    }
+    .feature-main-label {
+      font-size: 14px;
+      color: rgba(255,255,255,0.75);
+      font-weight: 700;
+      position: relative;
+      z-index: 0;
+    }
+
+    .feature-thumbs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 10px;
+      background: var(--color-bg-alt);
+    }
+    .feature-thumb {
+      width: 60px;
+      height: 44px;
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color 0.15s;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .feature-thumb:hover, .feature-thumb.active { border-color: var(--color-primary); }
+    .feature-thumb img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .feature-thumb span {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      color: rgba(255,255,255,0.75);
+      font-weight: 700;
+      text-align: center;
+      padding: 2px;
+    }
+
+    .feature-card-right {
+      padding: 28px 24px;
+      background: var(--color-card);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .feature-name {
+      font-family: 'Kaisei Opti', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: 12px;
+    }
+    .feature-concept { font-size: 13px; color: var(--color-text-sub); line-height: 1.8; margin-top: 12px; }
+
+    /* タグリスト（works・estimate共通） */
+    .tag-list  { display: flex; flex-wrap: wrap; gap: 4px; }
+    .tag {
+      font-size: 10px;
+      background: var(--color-primary-light);
+      color: var(--color-primary-dark);
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-weight: 700;
+    }
+
+    /* ============================================================
+       サービスセクション
+       ============================================================ */
+    .services { background: var(--color-bg-alt); }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .service-card {
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      padding: 24px;
+      transition: border-color 0.2s;
+    }
+    .service-card:hover { border-color: var(--color-primary); }
+
+    .service-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--color-primary-light);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-bottom: 14px;
+    }
+
+    .service-name  { font-size: 16px; font-weight: 700; margin-bottom: 8px; color: var(--color-text); }
+    .service-desc  { font-size: 13px; color: var(--color-text-sub); line-height: 1.7; margin-bottom: 12px; }
+    .service-price { font-size: 14px; font-weight: 700; color: var(--color-primary); }
+
+    /* ============================================================
+       料金プランセクション
+       ============================================================ */
+    .plans { background: var(--color-card); }
+
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .plan-card {
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      padding: 28px 24px;
+      background: var(--color-bg);
+      position: relative;
+    }
+
+    /* おすすめプランは強調ボーダー */
+    .plan-card.featured {
+      border: 2px solid var(--color-primary);
+      background: var(--color-card);
+    }
+
+    .plan-badge {
+      position: absolute;
+      top: -13px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--color-primary);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 16px;
+      border-radius: 99px;
+      white-space: nowrap;
+    }
+
+    .plan-name  { font-size: 18px; font-weight: 700; color: var(--color-text); margin-bottom: 8px; }
+    .plan-price { font-size: 30px; font-weight: 900; color: var(--color-primary); margin-bottom: 4px; }
+    .plan-price span { font-size: 14px; font-weight: 400; color: var(--color-text-sub); }
+    .plan-desc  { font-size: 12px; color: var(--color-text-sub); line-height: 1.6; margin-bottom: 20px; }
+
+    .plan-items { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
+    .plan-items li {
+      font-size: 13px;
+      color: var(--color-text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .plan-items li::before { content: '✓'; color: var(--color-primary); font-weight: 700; flex-shrink: 0; }
+
+    /* ============================================================
+       見積もりセクション
+       チェック → 右パネルの合計がリアルタイム更新
+       ============================================================ */
+    .estimate { background: var(--color-bg-alt); }
+
+    .estimate-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    .estimate-note-small {
+      font-size: 12px;
+      color: var(--color-text-sub);
+      margin-bottom: 20px;
+      line-height: 1.7;
+    }
+
+    .estimate-items { display: flex; flex-direction: column; gap: 8px; }
+
+    .estimate-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      user-select: none;
+    }
+    .estimate-item:hover  { border-color: var(--color-primary); }
+    .estimate-item.active { border-color: var(--color-primary); background: var(--color-primary-light); }
+
+    .estimate-item-left { display: flex; align-items: center; gap: 10px; }
+    .estimate-item-left input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--color-primary); }
+    .estimate-item-name  { font-size: 14px; font-weight: 700; color: var(--color-text); }
+    .estimate-item-price { font-size: 13px; font-weight: 700; color: var(--color-primary); }
+
+    /* 右：合計パネル */
+    .estimate-summary {
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      padding: 28px;
+      position: sticky;
+      top: 76px;
+    }
+
+    .summary-heading    { font-size: 14px; font-weight: 700; color: var(--color-text-sub); margin-bottom: 16px; }
+    .summary-list       { min-height: 60px; display: flex; flex-direction: column; gap: 0; margin-bottom: 20px; }
+    .summary-list-empty { font-size: 13px; color: #aaa; }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--color-border);
+      color: var(--color-text);
+    }
+    .summary-row span:last-child { font-weight: 700; }
+
+    .summary-total-label { font-size: 12px; color: var(--color-text-sub); margin-bottom: 4px; }
+    .summary-total       { font-size: 36px; font-weight: 900; color: var(--color-primary); margin-bottom: 6px; }
+    .summary-notice      { font-size: 11px; color: var(--color-text-sub); line-height: 1.6; margin-bottom: 20px; }
+
+    /* ============================================================
+       依頼フォームセクション
+       ============================================================ */
+    .form-section { background: var(--color-card); }
+
+    .form-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    .form-group  { margin-bottom: 20px; }
+    .form-label  { display: block; font-size: 13px; font-weight: 700; color: var(--color-text); margin-bottom: 6px; }
+    .form-label .req { color: #e74c3c; margin-left: 3px; }
+
+    .form-input,
+    .form-textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--color-border);
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--color-text);
+      background: var(--color-bg);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-input:focus,
+    .form-textarea:focus { border-color: var(--color-primary); }
+    .form-textarea { min-height: 120px; resize: vertical; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    /* 右：見積もり引き継ぎパネル */
+    .form-preview {
+      background: var(--color-primary-light);
+      border-radius: 16px;
+      padding: 24px;
+      position: sticky;
+      top: 76px;
+    }
+    .form-preview-heading { font-size: 14px; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 16px; }
+    .form-preview-list    { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; min-height: 60px; }
+
+    .form-preview-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 10px 14px;
+      background: var(--color-card);
+      border-radius: 8px;
+      color: var(--color-text);
+    }
+    .form-preview-row span:last-child { font-weight: 700; }
+
+    .form-preview-empty  { font-size: 13px; color: #888; }
+    .form-preview-label  { font-size: 11px; color: var(--color-text-sub); margin-bottom: 4px; }
+    .form-preview-total  { font-size: 28px; font-weight: 900; color: var(--color-primary); }
+    .form-preview-notice { font-size: 11px; color: var(--color-text-sub); margin-top: 8px; line-height: 1.6; }
+
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background: var(--color-primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      transition: background 0.2s;
+      margin-top: 8px;
+    }
+    .btn-submit:hover { background: var(--color-primary-dark); }
+
+    /* ============================================================
+       フッター
+       ============================================================ */
+    .footer {
+      background: var(--color-text);
+      color: rgba(255,255,255,0.55);
+      text-align: center;
+      padding: 40px 24px;
+      font-size: 12px;
+    }
+    .footer-logo {
+      font-family: 'Tilt Warp', cursive;
+      font-size: 18px;
+      color: var(--color-primary);
+      margin-bottom: 8px;
+    }
+
+    /* ============================================================
+       カラーピッカーパネル（右下固定）
+       🎨ボタンで開閉
+       ============================================================ */
+    .cp-toggle {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 999;
+      width: 48px;
+      height: 48px;
+      background: var(--color-primary);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    }
+
+    .cp-panel {
+      position: fixed;
+      bottom: 82px;
+      right: 24px;
+      z-index: 998;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 16px;
+      padding: 20px;
+      width: 300px;
+      display: none;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    }
+    .cp-panel.open { display: block; }
+
+    .cp-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .cp-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .cp-row label { font-size: 12px; color: #555; }
+
+    .cp-right { display: flex; align-items: center; gap: 8px; }
+    .cp-hex   { font-size: 11px; color: #999; font-family: monospace; width: 64px; text-align: right; }
+
+    .cp-row input[type="color"] {
+      width: 36px;
+      height: 26px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      cursor: pointer;
+      padding: 2px;
+    }
+
+    .cp-reset {
+      width: 100%;
+      padding: 8px;
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #666;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===========================================================
+       ナビゲーション
+       =========================================================== -->
+  <nav class="nav">
+    <div class="container nav-inner">
+      <div class="nav-brand">
+        <a href="#" class="nav-logo">
+          MiteOrder
+          <span class="nav-logo-ja">ミテオーダー</span>
+        </a>
+        <span class="nav-tagline">見て、選んで、<br>見積もり依頼ができる。</span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="#works">実績</a></li>
+        <li><a href="#services">サービス</a></li>
+        <li><a href="#plans">料金</a></li>
+        <li><a href="#estimate">見積もり</a></li>
+        <li><a href="#contact"><button class="btn-primary">依頼する</button></a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="admin-badge">🖊 管理モード ― ロゴを3回クリックで解除</div>
+  <input type="file" id="collageFileInput" accept="image/*" style="display:none" onchange="handleCollageUpload(this)">
+
+  <!-- ===========================================================
+       ヒーローセクション — コラージュ型
+       背後：散らばった制作物画像（IndexedDB保存）
+       前面：キャッチコピー＋右の実績カード
+       =========================================================== -->
+  <section class="hero">
+    <div class="collage-bg" id="collageBg"></div>
+    <div class="container">
+      <div class="hero-inner">
+
+        <!-- 左：コピー -->
+        <div>
+          <span class="hero-badge">ご依頼受付中</span>
+          <h1 class="hero-title">
+            あなたの活動を、<br>
+            <span class="accent">世界観ごと</span><br>
+            デザインします。
+          </h1>
+          <p class="hero-desc">
+            ロゴ・配信画面・動画・ミニキャラまで、世界観ごと統一してデザインします。<br>
+            方向性さえあれば、期待のその先へ。
+          </p>
+          <div class="hero-btns">
+            <a href="#works"><button class="btn-primary">実績を見る</button></a>
+            <a href="#estimate"><button class="btn-outline">見積もりする</button></a>
+          </div>
+        </div>
+
+        <!-- 右：ブランドパネル -->
+        <div class="hero-brand">
+          <div class="hero-brand-inner">
+            <p class="hero-brand-logo">Mimilyappdev</p>
+            <div class="hero-brand-line"></div>
+            <p class="hero-brand-sub">World Design Studio</p>
+          </div>
+          <div class="hero-brand-mark">
+            <span>LOGO</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===========================================================
+       実績セクション
+       制作物単位ではなく「案件（世界観）単位」で見せる
+       =========================================================== -->
+  <section class="works" id="works">
+    <div class="container">
+      <p class="label">WORKS</p>
+      <h2 class="section-title">制作実績</h2>
+      <p class="section-sub">ロゴ単体ではなく、活動全体の世界観を統一してきました。</p>
+      <div id="worksContainer"></div>
+    </div>
+  </section>
+
+  <!-- ===========================================================
+       サービスセクション
+       =========================================================== -->
+  <section class="services" id="services">
+    <div class="container">
+      <p class="label">SERVICE</p>
+      <h2 class="section-title">対応サービス</h2>
+      <p class="section-sub">単品から、活動まるごとお任せまで対応しています。</p>
+      <div class="services-grid">
+
+        <div class="service-card">
+          <div class="service-icon">🎨</div>
+          <p class="service-name">キャラクターデザイン</p>
+          <p class="service-desc">世界観設計から担当可能。活動のコアとなるキャラクターを一から作ります。</p>
+          <p class="service-price">20,000円〜</p>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon">🔤</div>
+          <p class="service-name">ロゴデザイン</p>
+          <p class="service-desc">フェイスロゴ・サインロゴ対応。活動名・世界観に合わせてデザインします。</p>
+          <p class="service-price">7,000円〜</p>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon">🖥️</div>
+          <p class="service-name">配信画面制作</p>
+          <p class="service-desc">ゲーム・雑談・待機画面など。3種セットもご用意しています。</p>
+          <p class="service-price">8,500円〜（3種セット 25,000円）</p>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon">🎬</div>
+          <p class="service-name">OP/ED・PV動画</p>
+          <p class="service-desc">キャラクターはクライアント支給。ロゴ・背景・エフェクト・合成を担当します。</p>
+          <p class="service-price">20,000円〜</p>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon">🖼️</div>
+          <p class="service-name">イラスト制作</p>
+          <p class="service-desc">バストアップ・全身・ミニキャラ・着ぐるみなど幅広く対応。</p>
+          <p class="service-price">6,000円〜</p>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon">🌏</div>
+          <p class="service-name">世界観デザイン</p>
+          <p class="service-desc">活動コンセプトからビジュアル全体を統一。まとめてお任せいただけます。</p>
+          <p class="service-price">50,000円〜</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===========================================================
+       料金プランセクション
+       =========================================================== -->
+  <section class="plans" id="plans">
+    <div class="container">
+      <p class="label">PLAN</p>
+      <h2 class="section-title">料金プラン</h2>
+      <p class="section-sub">活動規模や目的に合わせてお選びください。</p>
+      <div class="plans-grid">
+
+        <!-- ロゴ単品 -->
+        <div class="plan-card">
+          <p class="plan-name">ロゴデザイン</p>
+          <p class="plan-price">7,000<span>円〜</span></p>
+          <p class="plan-desc">活動名・世界観に合ったロゴを制作します。</p>
+          <ul class="plan-items">
+            <li>フェイスロゴ 1案</li>
+            <li>ベクターデータ納品</li>
+            <li>商用利用可</li>
+          </ul>
+          <a href="#contact"><button class="btn-outline" style="width:100%;">この内容で相談する</button></a>
+        </div>
+
+        <!-- 世界観デザイン（おすすめ） -->
+        <div class="plan-card featured">
+          <span class="plan-badge">おすすめ</span>
+          <p class="plan-name">世界観デザイン</p>
+          <p class="plan-price">50,000<span>円〜</span></p>
+          <p class="plan-desc">ロゴ・配信画面・待機画面をまとめて統一します。</p>
+          <ul class="plan-items">
+            <li>ロゴデザイン</li>
+            <li>配信画面（3種）</li>
+            <li>待機画面</li>
+            <li>世界観コンセプト設計</li>
+          </ul>
+          <a href="#contact"><button class="btn-primary" style="width:100%;">この内容で相談する</button></a>
+        </div>
+
+        <!-- フルブランディング -->
+        <div class="plan-card">
+          <p class="plan-name">フルブランディング</p>
+          <p class="plan-price">150,000<span>円〜</span></p>
+          <p class="plan-desc">キャラデザから動画まで、活動を丸ごとお任せください。</p>
+          <ul class="plan-items">
+            <li>キャラクターデザイン</li>
+            <li>ロゴデザイン</li>
+            <li>配信画面・待機画面</li>
+            <li>チャンネルアート</li>
+            <li>ティザーPV</li>
+          </ul>
+          <a href="#contact"><button class="btn-outline" style="width:100%;">この内容で相談する</button></a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===========================================================
+       見積もりセクション
+       チェックを入れると右パネルの合計がリアルタイム更新
+       フォームセクションへもそのまま引き継ぎ
+       =========================================================== -->
+  <section class="estimate" id="estimate">
+    <div class="container">
+      <p class="label">ESTIMATE</p>
+      <h2 class="section-title">かんたん見積もり</h2>
+      <p class="section-sub">必要なものにチェックするだけで参考価格が出ます。</p>
+      <div class="estimate-inner">
+
+        <!-- 左：チェックリスト（JSで生成） -->
+        <div>
+          <p class="estimate-note-small">※ 表示は参考価格です。正式な見積もりはご相談後にご案内します。</p>
+          <div class="estimate-items" id="estimateItems"></div>
+        </div>
+
+        <!-- 右：合計パネル -->
+        <div class="estimate-summary">
+          <p class="summary-heading">選択内容</p>
+          <div class="summary-list" id="summaryList">
+            <p class="summary-list-empty">まだ何も選ばれていません</p>
+          </div>
+          <p class="summary-total-label">予想合計</p>
+          <p class="summary-total" id="totalDisplay">0円</p>
+          <p class="summary-notice">内容確認後に正式なお見積もりをご案内いたします。</p>
+          <a href="#contact"><button class="btn-primary" style="width:100%;">この内容で相談する</button></a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===========================================================
+       依頼フォームセクション
+       =========================================================== -->
+  <section class="form-section" id="contact">
+    <div class="container">
+      <p class="label">CONTACT</p>
+      <h2 class="section-title">依頼・お問い合わせ</h2>
+      <p class="section-sub">お気軽にご相談ください。内容確認後、2〜3営業日以内にご返信します。</p>
+      <div class="form-inner">
+
+        <!-- 左：フォーム -->
+        <form onsubmit="handleSubmit(event)">
+          <div class="form-group">
+            <label class="form-label">活動名 <span class="req">*</span></label>
+            <input type="text" class="form-input" placeholder="例：エリザ・ローズ" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">活動URL（SNS等）</label>
+            <input type="url" class="form-input" placeholder="https://twitter.com/...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">ご依頼内容 <span class="req">*</span></label>
+            <textarea class="form-textarea" placeholder="使用用途・雰囲気・希望内容などをお書きください" required></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">ご予算</label>
+              <input type="text" class="form-input" placeholder="例：20,000円〜">
+            </div>
+            <div class="form-group">
+              <label class="form-label">希望納期</label>
+              <input type="text" class="form-input" placeholder="例：○月○日まで">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">参考資料・その他</label>
+            <textarea class="form-textarea" style="min-height:80px;" placeholder="参考画像のURL・追記事項などあればご記入ください"></textarea>
+          </div>
+          <button type="submit" class="btn-submit">依頼を送信する</button>
+        </form>
+
+        <!-- 右：見積もり引き継ぎプレビュー -->
+        <div class="form-preview">
+          <p class="form-preview-heading">見積もりの選択内容</p>
+          <div class="form-preview-list" id="formPreviewList">
+            <p class="form-preview-empty">見積もりセクションで選択した内容がここに表示されます。</p>
+          </div>
+          <p class="form-preview-label">参考合計</p>
+          <p class="form-preview-total" id="formTotalDisplay">0円</p>
+          <p class="form-preview-notice">※ 正式な金額は確認後にご案内します。</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===========================================================
+       フッター
+       =========================================================== -->
+  <footer class="footer">
+    <p class="footer-logo">MiteOrder<span style="display:block;font-family:'BIZ UDGothic',sans-serif;font-size:10px;letter-spacing:3px;color:rgba(255,255,255,0.35);font-weight:700;">ミテオーダー</span></p>
+    <p style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:8px;">見て、選んで、見積もり依頼ができる。</p>
+    <p>Mimilyappdev — イラスト・デザイン・動画制作</p>
+    <p style="margin-top:8px;">© 2026 Mimilyappdev. All rights reserved.</p>
+  </footer>
+
+  <!-- ===========================================================
+       カラーピッカーパネル（右下固定）
+       🎨ボタンで開閉、CSS変数をリアルタイム書き換え
+       =========================================================== -->
+  <button class="cp-toggle" onclick="toggleCP()" title="カラーを変更">🎨</button>
+
+  <div class="cp-panel" id="cpPanel">
+    <p class="cp-title">🎨 カラー設定</p>
+
+    <!-- 各行：ラベル / HEX表示 / カラーピッカー -->
+    <div class="cp-row">
+      <label>ページ背景</label>
+      <div class="cp-right">
+        <span class="cp-hex" id="h-bg">#F0FAFB</span>
+        <input type="color" value="#F0FAFB" oninput="setColor('--color-bg',this.value,'h-bg')">
+      </div>
+    </div>
+    <div class="cp-row">
+      <label>セクション背景</label>
+      <div class="cp-right">
+        <span class="cp-hex" id="h-alt">#E4F5F8</span>
+        <input type="color" value="#E4F5F8" oninput="setColor('--color-bg-alt',this.value,'h-alt')">
+      </div>
+    </div>
+    <div class="cp-row">
+      <label>メインカラー</label>
+      <div class="cp-right">
+        <span class="cp-hex" id="h-primary">#00AFCC</span>
+        <input type="color" value="#00AFCC" oninput="setColor('--color-primary',this.value,'h-primary')">
+      </div>
+    </div>
+    <div class="cp-row">
+      <label>メイン（濃）</label>
+      <div class="cp-right">
+        <span class="cp-hex" id="h-dark">#007A90</span>
+        <input type="color" value="#007A90" oninput="setColor('--color-primary-dark',this.value,'h-dark')">
+      </div>
+    </div>
+    <div class="cp-row">
+      <label>メイン（淡）</label>
+      <div class="cp-right">
+        <span class="cp-hex" id="h-light">#E0F7FC</span>
+        <input type="color" value="#E0F7FC" oninput="setColor('--color-primary-light',this.value,'h-light')">
+      </div>
+    </div>
+    <div class="cp-row">
+      <label>アクセント（ゴールド）</label>
+      <div class="cp-right">
+        <span class="cp-hex" id="h-accent">#D4A853</span>
+        <input type="color" value="#D4A853" oninput="setColor('--color-accent',this.value,'h-accent')">
+      </div>
+    </div>
+    <div class="cp-row">
+      <label>テキスト</label>
+      <div class="cp-right">
+        <span class="cp-hex" id="h-text">#0A3D4D</span>
+        <input type="color" value="#0A3D4D" oninput="setColor('--color-text',this.value,'h-text')">
+      </div>
+    </div>
+    <div class="cp-row">
+      <label>テキスト（サブ）</label>
+      <div class="cp-right">
+        <span class="cp-hex" id="h-sub">#4A7A85</span>
+        <input type="color" value="#4A7A85" oninput="setColor('--color-text-sub',this.value,'h-sub')">
+      </div>
+    </div>
+    <div class="cp-row">
+      <label>ボーダー</label>
+      <div class="cp-right">
+        <span class="cp-hex" id="h-border">#B8E0EA</span>
+        <input type="color" value="#B8E0EA" oninput="setColor('--color-border',this.value,'h-border')">
+      </div>
+    </div>
+    <div class="cp-row">
+      <label>ナビ背景</label>
+      <div class="cp-right">
+        <span class="cp-hex" id="h-nav">#FFFFFF</span>
+        <input type="color" value="#FFFFFF" oninput="setColor('--color-nav',this.value,'h-nav')">
+      </div>
+    </div>
+
+    <button class="cp-reset" onclick="resetColors()">デフォルトに戻す</button>
+  </div>
+
+  <!-- ===========================================================
+       JavaScript
+       =========================================================== -->
+  <script>
+    /* ----------------------------------------------------------
+       IndexedDB — コラージュ画像の永続保存
+       ---------------------------------------------------------- */
+    let _db = null;
+    function initDB() {
+      const req = indexedDB.open('miteorder-collage', 1);
+      req.onupgradeneeded = e => e.target.result.createObjectStore('images', { keyPath: 'slot' });
+      req.onsuccess = e => { _db = e.target.result; loadCollageImages(); };
+    }
+    function saveCollageImage(slot, dataURL) {
+      if (!_db) return;
+      _db.transaction('images', 'readwrite').objectStore('images').put({ slot, dataURL });
+    }
+    function loadCollageImages() {
+      if (!_db) return;
+      for (let i = 0; i < 7; i++) {
+        const req = _db.transaction('images', 'readonly').objectStore('images').get(i);
+        req.onsuccess = e => { if (e.target.result) applyCollageImage(e.target.result.slot, e.target.result.dataURL); };
+      }
+    }
+    function applyCollageImage(slot, dataURL) {
+      const item = document.querySelector(`.collage-item[data-slot="${slot}"]`);
+      if (!item) return;
+      item.querySelector('.collage-placeholder').style.display = 'none';
+      item.style.background = 'transparent'; // 透過PNG対応：背景を消す
+      let img = item.querySelector('img');
+      if (!img) { img = document.createElement('img'); item.prepend(img); }
+      img.src = dataURL;
+    }
+
+    /* ----------------------------------------------------------
+       コラージュギャラリー構築
+       ---------------------------------------------------------- */
+    /* 7枚：作れるもの一覧（ロゴ/サイン/ミニキャラA/B/配信画面/動画/宣伝画像） */
+    const COLLAGE_POSITIONS = [
+      { top:    '-18px',  left:  '-16px',  rot: -8,  h: 130, bg: '#2d1b3d' },  // ロゴ
+      { top:     '6px',   left:   '6%',    rot:  5,  h: 108, bg: '#1a2a3d' },  // サイン
+      { top:    '-12px',  left:  '17%',    rot: -4,  h: 120, bg: '#3d2a1a' },  // ミニキャラA
+      { top:     '52%',   left:  '-20px',  rot:  7,  h: 124, bg: '#1a3d2a' },  // ミニキャラB
+      { top:     '50%',   left:   '9%',    rot: -5,  h: 112, bg: '#3d3a1a' },  // 配信画面
+      { bottom: '-16px',  left:  '-14px',  rot: -6,  h: 128, bg: '#3d1a2a' },  // 動画
+      { bottom:  '-8px',  left:  '14%',    rot:  4,  h: 116, bg: '#2d1b3d' },  // 宣伝画像
+    ];
+
+    function buildCollage() {
+      const bg = document.getElementById('collageBg');
+      bg.innerHTML = COLLAGE_POSITIONS.map((pos, i) => {
+        const posStyle = Object.entries(pos)
+          .filter(([k]) => !['rot','h','bg'].includes(k))
+          .map(([k, v]) => `${k}:${v}`).join(';');
+        return `
+          <div class="collage-item" data-slot="${i}"
+               style="${posStyle};height:${pos.h}px;transform:rotate(${pos.rot}deg)"
+               onclick="collageItemClick(event,${i})">
+            <div class="collage-placeholder" style="background:${pos.bg}">${i + 1}</div>
+            <div class="collage-upload-btn" onclick="event.stopPropagation();openCollageUpload(${i})">＋</div>
+          </div>`;
+      }).join('');
+    }
+
+    function collageItemClick(e, slot) {
+      if (document.body.classList.contains('admin-mode')) return;
+      document.getElementById('works').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    /* ロゴを3回タップ/クリックで管理モード切替 */
+    let _adminClicks = 0, _adminTimer;
+    function initAdminMode() {
+      document.querySelector('.nav-logo').addEventListener('click', (e) => {
+        e.preventDefault(); // iOS の href="#" によるページトップ移動を防ぐ
+        _adminClicks++;
+        clearTimeout(_adminTimer);
+        _adminTimer = setTimeout(() => { _adminClicks = 0; }, 2000); // タッチ用に余裕を持たせる
+        if (_adminClicks >= 3) {
+          _adminClicks = 0;
+          document.body.classList.toggle('admin-mode');
+        }
+      });
+      // URL に ?admin が含まれていても管理モードに入れる（iPad用の保険）
+      if (location.search.includes('admin')) {
+        document.body.classList.add('admin-mode');
+      }
+    }
+
+    let _uploadSlot = -1;
+    function openCollageUpload(slot) { _uploadSlot = slot; document.getElementById('collageFileInput').click(); }
+    function handleCollageUpload(input) {
+      const file = input.files[0];
+      if (!file || _uploadSlot < 0) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        saveCollageImage(_uploadSlot, e.target.result);
+        applyCollageImage(_uploadSlot, e.target.result);
+        input.value = '';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    /* ----------------------------------------------------------
+       実績データ
+       ---------------------------------------------------------- */
+    const WORKS = [
+      {
+        id: 'eliza-rose',
+        name: 'エリザ・ローズ',
+        concept: '薔薇と騎士モチーフで全媒体を統一。世界観の核をビジュアルに落とし込みました。',
+        bgColor: '#2d1b3d',
+        tags: ['ロゴ', '配信画面', '待機画面', 'PV', 'チャンネルアート'],
+        images: [
+          { src: 'images/works/eliza-rose-01.png', label: '立ち絵' },
+          { src: 'images/works/eliza-rose-02.png', label: '配信画面' },
+          { src: 'images/works/eliza-rose-03.png', label: '待機画面' },
+          { src: 'images/works/eliza-rose-04.png', label: 'サムネ' },
+          { src: 'images/works/eliza-rose-05.png', label: '宣伝画像' },
+        ]
+      },
+      {
+        id: 'inumiya-shannon',
+        name: '犬宮シャノン',
+        concept: '探偵×犬モチーフをロゴ・配信画面・モチーフ全体へ反映。コンセプトに一貫性を持たせました。',
+        bgColor: '#1a2a3d',
+        tags: ['ロゴ', '配信画面', '待機画面'],
+        images: [
+          { src: 'images/works/inumiya-shannon-01.png', label: '配信画面' },
+        ]
+      },
+      {
+        id: 'shiroken-fuwawa',
+        name: '白犬ふわわ',
+        concept: 'キャラクターデザインから担当。世界観設計の段階からブランドを構築しました。',
+        bgColor: '#3d2a1a',
+        tags: ['キャラクターデザイン', 'ロゴ', 'サイン', '配信画面'],
+        images: [
+          { src: 'images/works/shiroken-fuwawa-01.png', label: 'キャラデザ' },
+        ]
+      },
+      {
+        id: 'nekosadaijin-miako',
+        name: '猫左大臣ミァコ',
+        concept: 'キャラ設計から配信画面まで一気通貫。和風モチーフを現代的に昇華しました。',
+        bgColor: '#1a3d2a',
+        tags: ['キャラクターデザイン', 'ロゴ', '配信画面', '待機画面'],
+        images: [
+          { src: 'images/works/nekosadaijin-miako-01.png', label: 'キャラデザ' },
+        ]
+      },
+      {
+        id: 'ekyu',
+        name: 'エキュたん',
+        concept: '世界観設計からスタート。活動コンセプトをキャラクターとロゴに落とし込みました。',
+        bgColor: '#3d3a1a',
+        tags: ['キャラクターデザイン', '世界観設計', 'ロゴ'],
+        images: [
+          { src: 'images/works/ekyu-01.png', label: 'キャラデザ' },
+        ]
+      },
+      {
+        id: 'lady-lilith',
+        name: 'レディ・リリス',
+        concept: 'ダークファンタジー世界観を構築。キャラクターデザインとロゴで活動の核を作りました。',
+        bgColor: '#3d1a2a',
+        tags: ['キャラクターデザイン', '世界観設計', 'ロゴ'],
+        images: [
+          { src: 'images/works/lady-lilith-01.png', label: 'キャラデザ' },
+        ]
+      },
+    ];
+
+    /* ----------------------------------------------------------
+       見積もりデータ
+       price は「〜」表示のためのベース価格（最低額）
+       ---------------------------------------------------------- */
+    const ESTIMATE_ITEMS = [
+      { id: 'logo',       name: 'ロゴデザイン',          price: 7000  },
+      { id: 'stream3',    name: '配信画面（3種セット）',   price: 25000 },
+      { id: 'stream1',    name: '配信画面（1枚）',         price: 8500  },
+      { id: 'chara',      name: 'キャラクターデザイン',    price: 20000 },
+      { id: 'op',         name: 'OP/ED動画',              price: 20000 },
+      { id: 'pv',         name: 'PV/トレーラー',          price: 30000 },
+      { id: 'waiting',    name: '待機画面ループ動画',      price: 25000 },
+      { id: 'illust',     name: '一枚絵イラスト',          price: 20000 },
+      { id: 'mini',       name: 'ミニキャラ',              price: 6000  },
+      { id: 'header',     name: 'ヘッダー制作',            price: 5000  },
+      { id: 'sign',       name: 'サインデザイン',          price: 3500  },
+      { id: 'cover',      name: '表紙デザイン',            price: 15000 },
+    ];
+
+    /* 見積もりアイテムをDOMへ出力 */
+    function buildEstimate() {
+      const container = document.getElementById('estimateItems');
+      container.innerHTML = ESTIMATE_ITEMS.map(item => `
+        <div class="estimate-item" id="ei-${item.id}" onclick="toggleItem('${item.id}')">
+          <div class="estimate-item-left">
+            <input type="checkbox" id="cb-${item.id}"
+              onclick="event.stopPropagation();"
+              onchange="updateTotal()">
+            <label class="estimate-item-name" for="cb-${item.id}">${item.name}</label>
+          </div>
+          <span class="estimate-item-price">${item.price.toLocaleString()}円〜</span>
+        </div>
+      `).join('');
+    }
+
+    /* チェック状態を反転 */
+    function toggleItem(id) {
+      const cb = document.getElementById('cb-' + id);
+      cb.checked = !cb.checked;
+      updateTotal();
+    }
+
+    /* 合計を計算して各パネルを更新 */
+    function updateTotal() {
+      const selected = ESTIMATE_ITEMS.filter(item => {
+        const cb = document.getElementById('cb-' + item.id);
+        return cb && cb.checked;
+      });
+
+      /* activeクラス管理 */
+      ESTIMATE_ITEMS.forEach(item => {
+        const el = document.getElementById('ei-' + item.id);
+        const cb = document.getElementById('cb-' + item.id);
+        if (el && cb) el.classList.toggle('active', cb.checked);
+      });
+
+      const total = selected.reduce((sum, item) => sum + item.price, 0);
+      const totalText = total > 0 ? total.toLocaleString() + '円〜' : '0円';
+
+      /* 見積もりサマリー */
+      const summaryEl = document.getElementById('summaryList');
+      summaryEl.innerHTML = selected.length === 0
+        ? '<p class="summary-list-empty">まだ何も選ばれていません</p>'
+        : selected.map(item => `
+            <div class="summary-row">
+              <span>${item.name}</span>
+              <span>${item.price.toLocaleString()}円〜</span>
+            </div>`).join('');
+
+      document.getElementById('totalDisplay').textContent = totalText;
+
+      /* フォームプレビュー（引き継ぎ） */
+      const previewEl = document.getElementById('formPreviewList');
+      previewEl.innerHTML = selected.length === 0
+        ? '<p class="form-preview-empty">見積もりセクションで選択した内容がここに表示されます。</p>'
+        : selected.map(item => `
+            <div class="form-preview-row">
+              <span>${item.name}</span>
+              <span>${item.price.toLocaleString()}円〜</span>
+            </div>`).join('');
+
+      document.getElementById('formTotalDisplay').textContent = totalText;
+    }
+
+    /* ----------------------------------------------------------
+       フォーム送信
+       本番では Formspree / Netlify Forms 等に置き換えること
+       ---------------------------------------------------------- */
+    function handleSubmit(e) {
+      e.preventDefault();
+      alert('送信ありがとうございます！\n2〜3営業日以内にご返信します。\n\n※ 送信先は実装時に設定してください（Formspree等）。');
+    }
+
+    /* ----------------------------------------------------------
+       実績セクション構築
+       ---------------------------------------------------------- */
+    function buildWorks() {
+      const container = document.getElementById('worksContainer');
+      container.innerHTML = '<div class="works-list">' + WORKS.map(work => {
+        const main = work.images[0];
+        const hasMultiple = work.images.length > 1;
+        const thumbsHtml = hasMultiple ? `
+          <div class="feature-thumbs" id="thumbs-${work.id}">
+            ${work.images.map((img, i) => `
+              <div class="feature-thumb${i === 0 ? ' active' : ''}"
+                   style="background:${work.bgColor}"
+                   onclick="switchWorkImage('${work.id}','${img.src}','${img.label}',this)">
+                <img src="${img.src}" onerror="this.remove()">
+                <span>${img.label}</span>
+              </div>`).join('')}
+          </div>` : '';
+        return `
+          <div class="feature-card">
+            <div class="feature-card-left">
+              <div class="feature-main-wrap" id="main-${work.id}" style="background:${work.bgColor}">
+                <img class="feature-main-img" src="${main.src}" alt="${main.label}" onerror="this.remove()">
+                <span class="feature-main-label">${work.name}</span>
+              </div>
+              ${thumbsHtml}
+            </div>
+            <div class="feature-card-right">
+              <p class="feature-name">${work.name}</p>
+              <div class="tag-list">${work.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+              <p class="feature-concept">${work.concept}</p>
+            </div>
+          </div>`;
+      }).join('') + '</div>';
+    }
+
+    function buildHeroCards() {
+      const grid = document.getElementById('heroCardsGrid');
+      grid.innerHTML = WORKS.slice(0, 4).map(work => {
+        const img = work.images[0];
+        return `
+          <div class="hero-card">
+            <div class="hero-card-thumb" style="background:${work.bgColor}">
+              <img src="${img.src}" onerror="this.remove()">
+              <span>${work.name}</span>
+            </div>
+            <div class="hero-card-info">
+              <p class="hero-card-name">${work.name}</p>
+              <p class="hero-card-tags">${work.tags.slice(0, 3).join('・')}</p>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function switchWorkImage(workId, src, label, thumbEl) {
+      const wrap = document.getElementById('main-' + workId);
+      let img = wrap.querySelector('.feature-main-img');
+      if (!img) {
+        img = document.createElement('img');
+        img.className = 'feature-main-img';
+        img.onerror = () => img.remove();
+        wrap.appendChild(img);
+      }
+      img.src = src;
+      img.alt = label;
+      document.querySelectorAll('#thumbs-' + workId + ' .feature-thumb').forEach(t => t.classList.remove('active'));
+      thumbEl.classList.add('active');
+    }
+
+    /* ----------------------------------------------------------
+       カラーピッカー
+       ---------------------------------------------------------- */
+    /* パネル開閉 */
+    function toggleCP() {
+      document.getElementById('cpPanel').classList.toggle('open');
+    }
+
+    /* CSS変数を更新 + HEX表示を同期 */
+    function setColor(varName, value, hexId) {
+      document.documentElement.style.setProperty(varName, value);
+      document.getElementById(hexId).textContent = value.toUpperCase();
+    }
+
+    /* デフォルトカラー定義 */
+    const DEFAULTS = {
+      '--color-bg':            { value: '#F0FAFB', hexId: 'h-bg'      },
+      '--color-bg-alt':        { value: '#E4F5F8', hexId: 'h-alt'     },
+      '--color-primary':       { value: '#00AFCC', hexId: 'h-primary' },
+      '--color-primary-dark':  { value: '#007A90', hexId: 'h-dark'    },
+      '--color-primary-light': { value: '#E0F7FC', hexId: 'h-light'   },
+      '--color-accent':        { value: '#D4A853', hexId: 'h-accent'  },
+      '--color-text':          { value: '#0A3D4D', hexId: 'h-text'    },
+      '--color-text-sub':      { value: '#4A7A85', hexId: 'h-sub'     },
+      '--color-border':        { value: '#B8E0EA', hexId: 'h-border'  },
+      '--color-nav':           { value: '#FFFFFF', hexId: 'h-nav'     },
+    };
+
+    /* 全色をデフォルトに戻す */
+    function resetColors() {
+      Object.entries(DEFAULTS).forEach(([varName, { value, hexId }]) => {
+        document.documentElement.style.setProperty(varName, value);
+        document.getElementById(hexId).textContent = value.toUpperCase();
+      });
+      /* ピッカーのUI値も初期値に戻す */
+      document.querySelectorAll('.cp-panel input[type="color"]').forEach((input, i) => {
+        input.value = Object.values(DEFAULTS)[i].value;
+      });
+    }
+
+    /* ----------------------------------------------------------
+       初期化
+       ---------------------------------------------------------- */
+    initDB();
+    buildCollage();
+    buildWorks();
+    buildEstimate();
+    initAdminMode();
+  </script>
+
+</body>
+</html>
