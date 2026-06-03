@@ -1582,10 +1582,26 @@
       document.getElementById('cpPanel').classList.toggle('open');
     }
 
-    /* CSS変数を更新 + HEX表示を同期 */
+    /* CSS変数を更新 + HEX表示を同期 + localStorage保存 */
     function setColor(varName, value, hexId) {
       document.documentElement.style.setProperty(varName, value);
       document.getElementById(hexId).textContent = value.toUpperCase();
+      localStorage.setItem('miteorder-color-' + varName, value);
+    }
+
+    /* ページ読み込み時にlocalStorageから色を復元 */
+    function restoreColors() {
+      Object.entries(DEFAULTS).forEach(([varName, { hexId }]) => {
+        const saved = localStorage.getItem('miteorder-color-' + varName);
+        if (saved) {
+          document.documentElement.style.setProperty(varName, saved);
+          document.getElementById(hexId).textContent = saved.toUpperCase();
+          const inputs = document.querySelectorAll('.cp-panel input[type="color"]');
+          Object.keys(DEFAULTS).forEach((key, i) => {
+            if (key === varName && inputs[i]) inputs[i].value = saved;
+          });
+        }
+      });
     }
 
     /* デフォルトカラー定義 */
@@ -1607,8 +1623,8 @@
       Object.entries(DEFAULTS).forEach(([varName, { value, hexId }]) => {
         document.documentElement.style.setProperty(varName, value);
         document.getElementById(hexId).textContent = value.toUpperCase();
+        localStorage.removeItem('miteorder-color-' + varName);
       });
-      /* ピッカーのUI値も初期値に戻す */
       document.querySelectorAll('.cp-panel input[type="color"]').forEach((input, i) => {
         input.value = Object.values(DEFAULTS)[i].value;
       });
@@ -1622,6 +1638,7 @@
     buildWorks();
     buildEstimate();
     initAdminMode();
+    restoreColors();
   </script>
 
 </body>
