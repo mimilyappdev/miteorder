@@ -246,6 +246,21 @@
     }
     body.admin-mode .admin-badge { display: block; }
 
+    /* ドラッグ・リサイズ（管理モード時のみ表示） */
+    .collage-resize-handle {
+      display: none;
+      position: absolute;
+      bottom: -6px; right: -6px;
+      width: 16px; height: 16px;
+      background: var(--color-primary);
+      border: 2px solid #fff;
+      border-radius: 3px;
+      cursor: se-resize;
+      z-index: 10;
+    }
+    body.admin-mode .collage-resize-handle { display: block; }
+    body.admin-mode .collage-item { cursor: move; }
+
     .hero-inner {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1301,6 +1316,7 @@
                onclick="collageItemClick(event,${i})">
             <div class="collage-placeholder" style="background:${pos.bg};height:${pos.h}px">${i + 1}</div>
             <div class="collage-upload-btn" onclick="event.stopPropagation();openCollageUpload(${i})">＋</div>
+            <div class="collage-resize-handle" onmousedown="startResize(event,${i})"></div>
           </div>`;
       }).join('');
     }
@@ -1632,10 +1648,140 @@
     }
 
     /* ----------------------------------------------------------
+       コラージュ ドラッグ移動・リサイズ（管理モード限定）
+       位置・サイズを localStorage に保存
+       ---------------------------------------------------------- */
+    const COLLAGE_STORAGE_KEY = 'miteorder-collage-layout';
+
+    function saveCollageLayout() {
+      const layout = [];
+      document.querySelectorAll('.collage-item').forEach(el => {
+        layout.push({
+          slot:   el.dataset.slot,
+          top:    el.style.top,
+          left:   el.style.left,
+          bottom: el.style.bottom,
+          right:  el.style.right,
+          width:  el.style.width,
+        });
+      });
+      localStorage.setItem(COLLAGE_STORAGE_KEY, JSON.stringify(layout));
+    }
+
+    function restoreCollageLayout() {
+      const saved = localStorage.getItem(COLLAGE_STORAGE_KEY);
+      if (!saved) return;
+      JSON.parse(saved).forEach(({ slot, top, left, bottom, right, width }) => {
+        const el = document.querySelector(`.collage-item[data-slot="${slot}"]`);
+        if (!el) return;
+        if (top)    el.style.top    = top;
+        if (left)   el.style.left   = left;
+        if (bottom) el.style.bottom = bottom;
+        if (right)  el.style.right  = right;
+        if (width)  el.style.width  = width;
+      });
+    }
+
+    /* ドラッグ移動 */
+    function initCollageDrag() {
+      document.querySelectorAll('.collage-item').forEach(el => {
+        el.addEventListener('mousedown', onDragStart);
+        el.addEventListener('touchstart', onDragStart, { passive: false });
+      });
+    }
+
+    let _drag = null;
+    function onDragStart(e) {
+      if (!document.body.classList.contains('admin-mode')) return;
+      if (e.target.classList.contains('collage-resize-handle')) return;
+      if (e.target.classList.contains('collage-upload-btn') || e.target.closest('.collage-upload-btn')) return;
+      e.preventDefault();
+
+      const el = e.currentTarget;
+      const parent = el.parentElement.getBoundingClientRect();
+      const rect   = el.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      _drag = {
+        el,
+        startX: clientX,
+        startY: clientY,
+        origLeft: rect.left - parent.left,
+        origTop:  rect.top  - parent.top,
+      };
+
+      el.style.transition = 'none';
+      el.style.bottom = '';
+      el.style.right  = '';
+      el.style.left   = _drag.origLeft + 'px';
+      el.style.top    = _drag.origTop  + 'px';
+      el.style.zIndex = 100;
+
+      document.addEventListener('mousemove', onDragMove);
+      document.addEventListener('mouseup',   onDragEnd);
+      document.addEventListener('touchmove', onDragMove, { passive: false });
+      document.addEventListener('touchend',  onDragEnd);
+    }
+
+    function onDragMove(e) {
+      if (!_drag) return;
+      e.preventDefault();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      _drag.el.style.left = (_drag.origLeft + clientX - _drag.startX) + 'px';
+      _drag.el.style.top  = (_drag.origTop  + clientY - _drag.startY) + 'px';
+    }
+
+    function onDragEnd() {
+      if (!_drag) return;
+      _drag.el.style.transition = '';
+      _drag.el.style.zIndex = '';
+      saveCollageLayout();
+      _drag = null;
+      document.removeEventListener('mousemove', onDragMove);
+      document.removeEventListener('mouseup',   onDragEnd);
+      document.removeEventListener('touchmove', onDragMove);
+      document.removeEventListener('touchend',  onDragEnd);
+    }
+
+    /* リサイズ */
+    let _resize = null;
+    function startResize(e, slot) {
+      if (!document.body.classList.contains('admin-mode')) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const el = document.querySelector(`.collage-item[data-slot="${slot}"]`);
+      _resize = {
+        el,
+        startX:     e.clientX,
+        origWidth:  el.offsetWidth,
+      };
+      document.addEventListener('mousemove', onResizeMove);
+      document.addEventListener('mouseup',   onResizeEnd);
+    }
+
+    function onResizeMove(e) {
+      if (!_resize) return;
+      const newW = Math.max(60, _resize.origWidth + e.clientX - _resize.startX);
+      _resize.el.style.width = newW + 'px';
+    }
+
+    function onResizeEnd() {
+      if (!_resize) return;
+      saveCollageLayout();
+      _resize = null;
+      document.removeEventListener('mousemove', onResizeMove);
+      document.removeEventListener('mouseup',   onResizeEnd);
+    }
+
+    /* ----------------------------------------------------------
        初期化
        ---------------------------------------------------------- */
     initDB();
     buildCollage();
+    restoreCollageLayout();
+    initCollageDrag();
     buildWorks();
     buildEstimate();
     initAdminMode();
