@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MiteOrder Devlog</title>
+<style>
+  body { font-family: 'BIZ UDGothic', 'Hiragino Sans', sans-serif; background: #f5f4f0; color: #1a1a18; margin: 0; padding: 24px; }
+  h1 { font-size: 20px; color: #00AFCC; letter-spacing: 2px; margin-bottom: 32px; }
+  .entry { background: #fff; border: 1px solid #ddd; border-radius: 12px; padding: 24px; margin-bottom: 24px; max-width: 800px; }
+  .entry-date { font-size: 11px; color: #999; margin-bottom: 4px; }
+  .entry-title { font-size: 18px; font-weight: 700; color: #0A3D4D; margin-bottom: 16px; }
+  h3 { font-size: 12px; font-weight: 700; color: #4A7A85; letter-spacing: 1px; text-transform: uppercase; margin: 16px 0 8px; }
+  ul { margin: 0; padding-left: 20px; }
+  li { font-size: 13px; line-height: 1.8; }
+  .item.warn { color: #b8860b; }
+  .item.warn::marker { content: "⚠ "; }
+  .item.todo { color: #00AFCC; }
+  .item.todo::marker { content: "→ "; }
+  .tag { display: inline-block; font-size: 10px; background: #E0F7FC; color: #007A90; padding: 2px 8px; border-radius: 99px; font-weight: 700; margin-right: 4px; }
+</style>
+</head>
+<body>
+<h1>MiteOrder Devlog</h1>
+
+<!-- ============================================================ -->
+<div class="entry">
+  <p class="entry-date">2026-06-05</p>
+  <p class="entry-title">コラージュ ドラッグ移動・リサイズ実装 ＋ アプリ連携設計</p>
+
+  <span class="tag">UI</span><span class="tag">設計</span>
+
+  <h3>実装・変更</h3>
+  <ul>
+    <li>コラージュ画像のドラッグ移動を実装（管理モード限定）</li>
+    <li>右下コーナーハンドルによるリサイズを実装（管理モード限定）</li>
+    <li>位置・サイズを localStorage に保存、リロード後も維持</li>
+    <li>タッチ操作（スマホ）にも対応（touchstart / touchmove / touchend）</li>
+    <li>GitHub にコミット・プッシュ済み（commit: 2ea3463）</li>
+  </ul>
+
+  <h3>設計検討：アプリ連携（MiteOrder → EasyReply → SchedulEX → RakuThrough）</h3>
+  <ul>
+    <li>SchedulEXのFirestore構造を確認：<code>/users/{uid}/schedulex/data</code> に orders 配列を1ドキュメントで管理</li>
+    <li>連携用に <code>/requests/{id}</code> コレクションを新設してHubとする方針に決定</li>
+    <li>既存の <code>schedulex/data</code> は直接触らない（外部書き込みによるデータ破損防止）</li>
+    <li>SchedulEXの設定メニューに「EasyReply連携」項目がすでに存在（未実装）→ 連携想定済みの設計</li>
+    <li>RakuThroughはSchedulEXとは別Firebaseプロジェクト → multi-project SDK で書き込む</li>
+  </ul>
+
+  <h3>検討してやめたこと</h3>
+  <ul>
+    <li class="item warn">SchedulEXのFirestoreを直接Hubにする案 → orders が1ドキュメント配列のため外部同時書き込みでデータ破損リスクあり、却下</li>
+    <li class="item warn">RakuThroughを依頼カードのマスターにする案 → 帳簿アプリが受付管理を持つのは役割過多、却下</li>
+    <li class="item warn">MiteOrder + 外部DB（Airtable等）でマスター管理 → サービス追加コストと複雑さで却下</li>
+    <li class="item warn">コラージュのドラッグを常時有効にする案 → 訪問者が誤って崩せるため管理モード限定に</li>
+  </ul>
+
+  <h3>残タスク</h3>
+  <ul>
+    <li class="item todo">RakuThroughのFirestoreコレクション構成を確認</li>
+    <li class="item todo">/requests コレクションのフィールド設計を確定</li>
+    <li class="item todo">MiteOrderのフォーム送信 → Firestore書き込みの実装</li>
+    <li class="item todo">EasyReplyへの依頼カードUI追加</li>
+    <li class="item todo">SchedulEX側：accepted requests の取り込みUI追加</li>
+  </ul>
+</div>
+
+</body>
+</html>
