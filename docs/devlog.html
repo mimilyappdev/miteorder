@@ -26,7 +26,30 @@
 <!-- ============================================================ -->
 <div class="entry">
   <p class="entry-date">2026-06-08</p>
-  <p class="entry-title">自動化：メールフィールド追加・ナビスクロールスパイ・デッドコード削除</p>
+  <p class="entry-title">自動化 round 2：OGタグ・モバイルナビ・lazy load・見積もり永続化</p>
+
+  <span class="tag">UX</span><span class="tag">SEO</span><span class="tag">モバイル</span><span class="tag">パフォーマンス</span>
+
+  <h3>実装・変更</h3>
+  <ul>
+    <li>OG / Twitter Card メタタグを追加 — SNSシェア時にタイトル・説明が表示されるようになった</li>
+    <li>モバイル用ハンバーガーナビを追加 — 768px以下でナビリンクが格納されるメニューに切り替わる</li>
+    <li>実績・コラージュ画像に <code>loading="lazy"</code> を付与 — 初期ロード時の不要な画像取得を抑制</li>
+    <li>見積もりチェック選択を localStorage に保存・復元 — ページ遷移後も選択状態が維持される</li>
+  </ul>
+
+  <h3>残タスク</h3>
+  <ul>
+    <li class="item todo">フォーム送信先を Formspree 等の実サービスに差し替える</li>
+    <li class="item todo">og:image を設定する（サムネ画像を用意したら追加）</li>
+    <li class="item todo">/requests コレクション設計・MiteOrder → Firestore 書き込み実装</li>
+  </ul>
+</div>
+
+<!-- ============================================================ -->
+<div class="entry">
+  <p class="entry-date">2026-06-08</p>
+  <p class="entry-title">自動化 round 1：メールフィールド追加・ナビスクロールスパイ・デッドコード削除</p>
 
   <span class="tag">バグ修正</span><span class="tag">UX</span><span class="tag">整理</span>
 

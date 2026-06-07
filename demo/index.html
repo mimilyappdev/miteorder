@@ -4,6 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MiteOrder — あなたの活動を、世界観ごとデザインします。</title>
+  <meta name="description" content="ロゴ・配信画面・動画・ミニキャラまで、世界観ごと統一してデザインします。方向性さえあれば、期待のその先へ。Mimilyappdev">
+  <meta property="og:title" content="MiteOrder — あなたの活動を、世界観ごとデザインします。">
+  <meta property="og:description" content="ロゴ・配信画面・動画・ミニキャラまで、世界観ごと統一してデザインします。方向性さえあれば、期待のその先へ。">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="MiteOrder | Mimilyappdev">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MiteOrder — あなたの活動を、世界観ごとデザインします。">
+  <meta name="twitter:description" content="ロゴ・配信画面・動画・ミニキャラまで、世界観ごと統一してデザインします。">
 
   <!--
     フォント構成（EasyReply・〆スケと共通）
@@ -180,6 +188,52 @@
     }
     .nav-links a:hover { color: var(--color-primary); }
     .nav-links a.active { color: var(--color-primary); font-weight: 700; }
+
+    /* ハンバーガーボタン（SP限定） */
+    .nav-burger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .nav-burger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--color-text);
+      border-radius: 2px;
+      transition: all 0.25s;
+    }
+    .nav-burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-burger.open span:nth-child(2) { opacity: 0; }
+    .nav-burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    @media (max-width: 768px) {
+      .nav-burger { display: flex; }
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 60px;
+        left: 0; right: 0;
+        background: var(--color-nav);
+        border-bottom: 1px solid var(--color-border);
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0;
+        padding: 8px 0;
+        z-index: 200;
+      }
+      .nav-links.open { display: flex; }
+      .nav-links li { width: 100%; }
+      .nav-links a {
+        display: block;
+        padding: 12px 24px;
+        font-size: 14px;
+      }
+    }
 
     /* ============================================================
        ヒーローセクション — コラージュ型
@@ -890,12 +944,15 @@
         </a>
         <span class="nav-tagline">見て、選んで、<br>見積もり依頼ができる。</span>
       </div>
-      <ul class="nav-links">
-        <li><a href="#works">実績</a></li>
-        <li><a href="#services">サービス</a></li>
-        <li><a href="#plans">料金</a></li>
-        <li><a href="#estimate">見積もり</a></li>
-        <li><a href="#contact"><button class="btn-primary">依頼する</button></a></li>
+      <button class="nav-burger" id="navBurger" aria-label="メニューを開く" onclick="toggleNav()">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#works" onclick="closeNav()">実績</a></li>
+        <li><a href="#services" onclick="closeNav()">サービス</a></li>
+        <li><a href="#plans" onclick="closeNav()">料金</a></li>
+        <li><a href="#estimate" onclick="closeNav()">見積もり</a></li>
+        <li><a href="#contact" onclick="closeNav()"><button class="btn-primary">依頼する</button></a></li>
       </ul>
     </div>
   </nav>
@@ -1469,6 +1526,26 @@
       `).join('');
     }
 
+    const ESTIMATE_STORAGE_KEY = 'miteorder-estimate-selection';
+
+    function saveEstimateSelection() {
+      const checked = ESTIMATE_ITEMS.filter(item => {
+        const cb = document.getElementById('cb-' + item.id);
+        return cb && cb.checked;
+      }).map(item => item.id);
+      localStorage.setItem(ESTIMATE_STORAGE_KEY, JSON.stringify(checked));
+    }
+
+    function restoreEstimateSelection() {
+      const saved = localStorage.getItem(ESTIMATE_STORAGE_KEY);
+      if (!saved) return;
+      JSON.parse(saved).forEach(id => {
+        const cb = document.getElementById('cb-' + id);
+        if (cb) cb.checked = true;
+      });
+      updateTotal();
+    }
+
     /* チェック状態を反転 */
     function toggleItem(id) {
       const cb = document.getElementById('cb-' + id);
@@ -1516,6 +1593,7 @@
             </div>`).join('');
 
       document.getElementById('formTotalDisplay').textContent = totalText;
+      saveEstimateSelection();
     }
 
     /* ----------------------------------------------------------
@@ -1541,7 +1619,7 @@
               <div class="feature-thumb${i === 0 ? ' active' : ''}"
                    style="background:${work.bgColor}"
                    onclick="switchWorkImage('${work.id}','${img.src}','${img.label}',this)">
-                <img src="${img.src}" onerror="this.remove()">
+                <img src="${img.src}" loading="lazy" onerror="this.remove()">
                 <span>${img.label}</span>
               </div>`).join('')}
           </div>` : '';
@@ -1549,7 +1627,7 @@
           <div class="feature-card">
             <div class="feature-card-left">
               <div class="feature-main-wrap" id="main-${work.id}" style="background:${work.bgColor}">
-                <img class="feature-main-img" src="${main.src}" alt="${main.label}" onerror="this.remove()">
+                <img class="feature-main-img" src="${main.src}" alt="${main.label}" loading="lazy" onerror="this.remove()">
                 <span class="feature-main-label">${work.name}</span>
               </div>
               ${thumbsHtml}
@@ -1779,12 +1857,22 @@
       sections.forEach(s => obs.observe(s));
     }
 
+    function toggleNav() {
+      document.getElementById('navBurger').classList.toggle('open');
+      document.getElementById('navLinks').classList.toggle('open');
+    }
+    function closeNav() {
+      document.getElementById('navBurger').classList.remove('open');
+      document.getElementById('navLinks').classList.remove('open');
+    }
+
     initDB();
     buildCollage();
     restoreCollageLayout();
     initCollageDrag();
     buildWorks();
     buildEstimate();
+    restoreEstimateSelection();
     initAdminMode();
     restoreColors();
     initScrollSpy();
