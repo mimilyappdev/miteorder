@@ -179,6 +179,7 @@
       transition: color 0.2s;
     }
     .nav-links a:hover { color: var(--color-primary); }
+    .nav-links a.active { color: var(--color-primary); font-weight: 700; }
 
     /* ============================================================
        ヒーローセクション — コラージュ型
@@ -1123,6 +1124,10 @@
             <input type="text" class="form-input" placeholder="例：エリザ・ローズ" required>
           </div>
           <div class="form-group">
+            <label class="form-label">ご連絡先メールアドレス <span class="req">*</span></label>
+            <input type="email" class="form-input" placeholder="例：example@email.com" required>
+          </div>
+          <div class="form-group">
             <label class="form-label">活動URL（SNS等）</label>
             <input type="url" class="form-input" placeholder="https://twitter.com/...">
           </div>
@@ -1558,24 +1563,6 @@
       }).join('') + '</div>';
     }
 
-    function buildHeroCards() {
-      const grid = document.getElementById('heroCardsGrid');
-      grid.innerHTML = WORKS.slice(0, 4).map(work => {
-        const img = work.images[0];
-        return `
-          <div class="hero-card">
-            <div class="hero-card-thumb" style="background:${work.bgColor}">
-              <img src="${img.src}" onerror="this.remove()">
-              <span>${work.name}</span>
-            </div>
-            <div class="hero-card-info">
-              <p class="hero-card-name">${work.name}</p>
-              <p class="hero-card-tags">${work.tags.slice(0, 3).join('・')}</p>
-            </div>
-          </div>`;
-      }).join('');
-    }
-
     function switchWorkImage(workId, src, label, thumbEl) {
       const wrap = document.getElementById('main-' + workId);
       let img = wrap.querySelector('.feature-main-img');
@@ -1778,6 +1765,20 @@
     /* ----------------------------------------------------------
        初期化
        ---------------------------------------------------------- */
+    function initScrollSpy() {
+      const sections = document.querySelectorAll('section[id]');
+      const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+      const obs = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          navLinks.forEach(a => a.classList.remove('active'));
+          const link = document.querySelector(`.nav-links a[href="#${entry.target.id}"]`);
+          if (link) link.classList.add('active');
+        });
+      }, { rootMargin: '-30% 0px -60% 0px' });
+      sections.forEach(s => obs.observe(s));
+    }
+
     initDB();
     buildCollage();
     restoreCollageLayout();
@@ -1786,6 +1787,7 @@
     buildEstimate();
     initAdminMode();
     restoreColors();
+    initScrollSpy();
   </script>
 
 </body>

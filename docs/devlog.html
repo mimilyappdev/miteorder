@@ -25,6 +25,33 @@
 
 <!-- ============================================================ -->
 <div class="entry">
+  <p class="entry-date">2026-06-08</p>
+  <p class="entry-title">自動化：メールフィールド追加・ナビスクロールスパイ・デッドコード削除</p>
+
+  <span class="tag">バグ修正</span><span class="tag">UX</span><span class="tag">整理</span>
+
+  <h3>実装・変更</h3>
+  <ul>
+    <li>依頼フォームに「ご連絡先メールアドレス」欄を追加（必須）— メールアドレスなしでは返信不可のため</li>
+    <li>Intersection Observer によるナビスクロールスパイを追加 — 現在位置のセクションリンクが強調表示される</li>
+    <li>デッドコード <code>buildHeroCards()</code> を削除 — HTML に対応する <code>id="heroCardsGrid"</code> が存在しなかった</li>
+  </ul>
+
+  <h3>リスク整理</h3>
+  <ul>
+    <li class="item warn">メールフィールドは <code>required</code> にしたため既存の未入力フォームが送れなくなる（現状は alert のみ表示なので実害なし）</li>
+    <li>スクロールスパイは Intersection Observer の閾値設定次第でハイライトがずれる可能性 → rootMargin -30%/-60% で調整済み</li>
+  </ul>
+
+  <h3>残タスク</h3>
+  <ul>
+    <li class="item todo">フォーム送信先を Formspree 等の実サービスに差し替える（現状は alert のみ）</li>
+    <li class="item todo">/requests コレクション設計・MiteOrder → Firestore 書き込み実装</li>
+  </ul>
+</div>
+
+<!-- ============================================================ -->
+<div class="entry">
   <p class="entry-date">2026-06-05</p>
   <p class="entry-title">コラージュ ドラッグ移動・リサイズ実装 ＋ アプリ連携設計</p>
 
