@@ -189,6 +189,14 @@
     .nav-links a:hover { color: var(--color-primary); }
     .nav-links a.active { color: var(--color-primary); font-weight: 700; }
 
+    /* フェードイン */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.55s ease, transform 0.55s ease;
+    }
+    .fade-in.visible { opacity: 1; transform: none; }
+
     /* ハンバーガーボタン（SP限定） */
     .nav-burger {
       display: none;
@@ -1849,6 +1857,20 @@
     /* ----------------------------------------------------------
        初期化
        ---------------------------------------------------------- */
+    function initFadeIn() {
+      const obs = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('visible');
+          obs.unobserve(entry.target);
+        });
+      }, { rootMargin: '0px 0px -40px 0px', threshold: 0.05 });
+      document.querySelectorAll('section:not(.hero)').forEach(el => {
+        el.classList.add('fade-in');
+        obs.observe(el);
+      });
+    }
+
     function initScrollSpy() {
       const sections = document.querySelectorAll('section[id]');
       const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
@@ -1881,6 +1903,7 @@
     restoreEstimateSelection();
     initAdminMode();
     restoreColors();
+    initFadeIn();
     initScrollSpy();
   </script>
 
