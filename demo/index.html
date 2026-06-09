@@ -370,6 +370,11 @@
       .hero-title { font-size: 28px; }
       .feature-card { grid-template-columns: 1fr; }
       .feature-gallery-wrap { height: 220px; }
+      .services-grid { grid-template-columns: 1fr; }
+      .plans-grid    { grid-template-columns: 1fr; }
+      .estimate-inner { grid-template-columns: 1fr; }
+      .form-inner    { grid-template-columns: 1fr; }
+      .form-row      { grid-template-columns: 1fr; }
     }
 
     /* 受付ステータスバッジ */
@@ -1188,33 +1193,33 @@
         <form onsubmit="handleSubmit(event)">
           <div class="form-group">
             <label class="form-label">活動名 <span class="req">*</span></label>
-            <input type="text" class="form-input" placeholder="例：エリザ・ローズ" required>
+            <input type="text" name="activity_name" class="form-input" placeholder="例：エリザ・ローズ" required>
           </div>
           <div class="form-group">
             <label class="form-label">ご連絡先メールアドレス <span class="req">*</span></label>
-            <input type="email" class="form-input" placeholder="例：example@email.com" required>
+            <input type="email" name="email" class="form-input" placeholder="例：example@email.com" required>
           </div>
           <div class="form-group">
             <label class="form-label">活動URL（SNS等）</label>
-            <input type="url" class="form-input" placeholder="https://twitter.com/...">
+            <input type="url" name="activity_url" class="form-input" placeholder="https://twitter.com/...">
           </div>
           <div class="form-group">
             <label class="form-label">ご依頼内容 <span class="req">*</span></label>
-            <textarea class="form-textarea" placeholder="使用用途・雰囲気・希望内容などをお書きください" required></textarea>
+            <textarea name="request" class="form-textarea" placeholder="使用用途・雰囲気・希望内容などをお書きください" required></textarea>
           </div>
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">ご予算</label>
-              <input type="text" class="form-input" placeholder="例：20,000円〜">
+              <input type="text" name="budget" class="form-input" placeholder="例：20,000円〜">
             </div>
             <div class="form-group">
               <label class="form-label">希望納期</label>
-              <input type="text" class="form-input" placeholder="例：○月○日まで">
+              <input type="text" name="deadline" class="form-input" placeholder="例：○月○日まで">
             </div>
           </div>
           <div class="form-group">
             <label class="form-label">参考資料・その他</label>
-            <textarea class="form-textarea" style="min-height:80px;" placeholder="参考画像のURL・追記事項などあればご記入ください"></textarea>
+            <textarea name="notes" class="form-textarea" style="min-height:80px;" placeholder="参考画像のURL・追記事項などあればご記入ください"></textarea>
           </div>
           <button type="submit" class="btn-submit">依頼を送信する</button>
         </form>
@@ -1552,16 +1557,21 @@
     function restoreEstimateSelection() {
       const saved = localStorage.getItem(ESTIMATE_STORAGE_KEY);
       if (!saved) return;
-      JSON.parse(saved).forEach(id => {
-        const cb = document.getElementById('cb-' + id);
-        if (cb) cb.checked = true;
-      });
-      updateTotal();
+      try {
+        JSON.parse(saved).forEach(id => {
+          const cb = document.getElementById('cb-' + id);
+          if (cb) cb.checked = true;
+        });
+        updateTotal();
+      } catch (e) {
+        localStorage.removeItem(ESTIMATE_STORAGE_KEY);
+      }
     }
 
     /* チェック状態を反転 */
     function toggleItem(id) {
       const cb = document.getElementById('cb-' + id);
+      if (!cb) return;
       cb.checked = !cb.checked;
       updateTotal();
     }
@@ -1615,14 +1625,14 @@
        ---------------------------------------------------------- */
     function handleSubmit(e) {
       e.preventDefault();
-      alert('送信ありがとうございます！\n2〜3営業日以内にご返信します。\n\n※ 送信先は実装時に設定してください（Formspree等）。');
+      alert('送信ありがとうございます！\n2〜3営業日以内にご返信します。');
     }
 
     /* ----------------------------------------------------------
        実績セクション構築
        ---------------------------------------------------------- */
     function buildWorks() {
-      const worksData = (typeof window.WORKS_CONFIG !== 'undefined')
+      const worksData = (window.WORKS_CONFIG && window.WORKS_CONFIG.length > 0)
         ? window.WORKS_CONFIG.filter(w => w.name && w.name.trim())
         : WORKS;
 
