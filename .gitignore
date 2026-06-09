@@ -1,0 +1,6 @@
+# ローカル専用の管理ツール（デプロイしない）
+demo/admin.html
+
+# OS
+.DS_Store
+Thumbs.db
