@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MiteOrder Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic:wght@400;700&family=Kaisei+Opti:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary:       #00AFCC;
+      --primary-dark:  #007A90;
+      --primary-light: #E0F7FC;
+      --accent:        #D4A853;
+      --text:          #0A3D4D;
+      --text-sub:      #4A7A85;
+      --border:        #B8E0EA;
+      --bg:            #F0FAFB;
+      --bg-alt:        #E4F5F8;
+      --card:          #FFFFFF;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'BIZ UDGothic', sans-serif; background: var(--bg); color: var(--text); }
+
+    /* ========== ヘッダー ========== */
+    .header {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      height: 56px;
+      display: flex; align-items: center;
+      padding: 0 24px; gap: 12px;
+    }
+    .header-title {
+      font-family: 'Kaisei Opti', serif;
+      font-size: 16px; font-weight: 700; color: var(--primary);
+    }
+    .header-badge {
+      font-size: 10px; font-weight: 700;
+      background: var(--primary-light); color: var(--primary-dark);
+      padding: 2px 10px; border-radius: 99px;
+    }
+    .header-note {
+      margin-left: auto;
+      font-size: 11px; color: var(--text-sub);
+    }
+
+    /* ========== メインレイアウト ========== */
+    .main { max-width: 860px; margin: 0 auto; padding: 28px 24px; }
+
+    /* ========== ツールバー ========== */
+    .toolbar {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 20px;
+    }
+    .works-count {
+      font-size: 13px; color: var(--text-sub);
+      margin-right: auto;
+    }
+
+    /* ========== ボタン ========== */
+    button { cursor: pointer; font-family: inherit; }
+    .btn {
+      padding: 8px 18px; border-radius: 6px;
+      font-size: 13px; font-weight: 700;
+      border: none; transition: background 0.2s;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+    .btn-outline {
+      background: transparent; color: var(--primary);
+      border: 1.5px solid var(--primary);
+    }
+    .btn-outline:hover { background: var(--primary-light); }
+    .btn-export { background: var(--text); color: #fff; }
+    .btn-export:hover { background: #1a5570; }
+    .btn-danger {
+      background: transparent; color: #c0392b;
+      border: 1.5px solid #c0392b;
+      font-size: 12px; padding: 4px 10px;
+    }
+    .btn-danger:hover { background: #fdf2f2; }
+    .btn-sm { padding: 5px 12px; font-size: 12px; }
+
+    /* ========== 実績カード（エディタ） ========== */
+    .work-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+    .work-card-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px;
+      background: var(--bg-alt);
+      border-bottom: 1px solid transparent;
+      cursor: pointer;
+      user-select: none;
+    }
+    .work-card.open .work-card-header { border-bottom-color: var(--border); }
+    .work-number {
+      width: 22px; height: 22px; flex-shrink: 0;
+      background: var(--primary); color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700;
+    }
+    .work-name-preview {
+      flex: 1; font-size: 14px; font-weight: 700; color: var(--text);
+    }
+    .work-card-toggle { font-size: 11px; color: var(--text-sub); transition: transform 0.2s; }
+    .work-card.open .work-card-toggle { transform: rotate(180deg); }
+
+    .work-card-body { display: none; padding: 20px; }
+    .work-card.open .work-card-body { display: block; }
+
+    /* ========== フォームフィールド ========== */
+    .field { margin-bottom: 16px; }
+    .field-label {
+      display: block; font-size: 11px; font-weight: 700;
+      color: var(--text-sub); letter-spacing: 1px;
+      text-transform: uppercase; margin-bottom: 6px;
+    }
+    .field-input, .field-textarea {
+      width: 100%; padding: 9px 12px;
+      border: 1.5px solid var(--border); border-radius: 6px;
+      font-size: 13px; font-family: inherit;
+      color: var(--text); background: var(--bg); outline: none;
+      transition: border-color 0.2s;
+    }
+    .field-input:focus, .field-textarea:focus { border-color: var(--primary); }
+    .field-textarea { min-height: 76px; resize: vertical; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* タグ入力 */
+    .tag-input-wrap {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      padding: 8px; min-height: 42px; align-items: center;
+      border: 1.5px solid var(--border); border-radius: 6px;
+      background: var(--bg);
+    }
+    .tag-input-wrap:focus-within { border-color: var(--primary); }
+    .tag-pill {
+      display: inline-flex; align-items: center; gap: 3px;
+      background: var(--primary-light); color: var(--primary-dark);
+      font-size: 11px; font-weight: 700;
+      padding: 2px 8px; border-radius: 99px;
+    }
+    .tag-pill button {
+      background: none; border: none; color: var(--primary-dark);
+      font-size: 12px; padding: 0 2px; line-height: 1; cursor: pointer;
+    }
+    .tag-input {
+      border: none; outline: none; font-size: 12px;
+      font-family: inherit; background: transparent;
+      flex: 1; min-width: 60px;
+    }
+
+    /* カラーピッカー行 */
+    .color-row { display: flex; align-items: center; gap: 10px; }
+    .color-row input[type="color"] {
+      width: 44px; height: 34px;
+      border: 1.5px solid var(--border); border-radius: 6px;
+      padding: 2px; cursor: pointer; background: var(--bg);
+    }
+    .color-hex { font-size: 12px; color: var(--text-sub); font-family: monospace; }
+
+    /* 画像アップロード */
+    .image-area {
+      border: 2px dashed var(--border); border-radius: 8px; padding: 14px;
+    }
+    .image-thumbs {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;
+    }
+    .image-thumb {
+      position: relative; width: 80px; height: 60px;
+      border-radius: 6px; overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .image-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .image-thumb-remove {
+      position: absolute; top: 3px; right: 3px;
+      width: 18px; height: 18px;
+      background: rgba(0,0,0,0.55); color: #fff;
+      border: none; border-radius: 50%;
+      font-size: 10px; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+    .image-thumb-label {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: rgba(0,0,0,0.45); color: #fff;
+      font-size: 8px; padding: 2px 4px; text-align: center;
+    }
+    .image-label-input {
+      width: 100%; padding: 3px 6px;
+      border: 1px solid var(--border); border-radius: 4px;
+      font-size: 11px; font-family: inherit;
+      background: var(--bg); color: var(--text); outline: none;
+      margin-top: 4px;
+    }
+    .image-label-input:focus { border-color: var(--primary); }
+
+    /* ========== エクスポート結果 ========== */
+    .export-result {
+      display: none; margin-top: 20px; padding: 16px 20px;
+      background: #f0fdf4; border: 1px solid #86efac;
+      border-radius: 10px; font-size: 13px; color: #166534;
+    }
+    .export-result.show { display: block; }
+    .export-result strong { font-weight: 700; }
+    .export-result .hint { font-size: 11px; color: #4a7a85; margin-top: 6px; }
+
+    /* ========== 空状態 ========== */
+    .empty-state {
+      text-align: center; padding: 60px 20px;
+      color: var(--text-sub); font-size: 14px;
+    }
+    .empty-state p { margin-bottom: 16px; }
+
+    @media (max-width: 600px) {
+      .field-row { grid-template-columns: 1fr; }
+      .header-note { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <span class="header-title">MiteOrder</span>
+  <span class="header-badge">Admin</span>
+  <span class="header-note">ローカル専用 — このファイルはデプロイしないでください</span>
+</div>
+
+<div class="main">
+  <div class="toolbar">
+    <span class="works-count" id="worksCount">0 / 10件</span>
+    <button class="btn btn-outline btn-sm" id="btnAdd" onclick="addWork()">＋ 実績を追加</button>
+    <button class="btn btn-export btn-sm" onclick="exportConfig()">works-config.js を出力</button>
+  </div>
+
+  <div id="worksEditor"></div>
+
+  <div class="export-result" id="exportResult">
+    <strong>✅ works-config.js をダウンロードしました。</strong>
+    <span id="exportSize"></span>
+    <p class="hint">demo/ フォルダに上書きしてデプロイしてください。</p>
+  </div>
+</div>
+
+<input type="file" id="imgInput" accept="image/*" multiple style="display:none">
+
+<script>
+  /* =====================================================
+     IndexedDB — 画像の永続保存
+  ===================================================== */
+  let _db = null;
+
+  function initDB() {
+    return new Promise(resolve => {
+      const req = indexedDB.open('miteorder-admin', 1);
+      req.onupgradeneeded = e => e.target.result.createObjectStore('images', { keyPath: 'key' });
+      req.onsuccess = e => { _db = e.target.result; resolve(); };
+      req.onerror   = () => resolve();
+    });
+  }
+  const dbPut = (key, dataURL, label) => new Promise(resolve => {
+    if (!_db) return resolve();
+    const tx = _db.transaction('images', 'readwrite');
+    tx.objectStore('images').put({ key, dataURL, label });
+    tx.oncomplete = resolve;
+  });
+  const dbGet = key => new Promise(resolve => {
+    if (!_db) return resolve(null);
+    const req = _db.transaction('images').objectStore('images').get(key);
+    req.onsuccess = e => resolve(e.target.result || null);
+    req.onerror   = () => resolve(null);
+  });
+  const dbDel = key => { if (_db) _db.transaction('images','readwrite').objectStore('images').delete(key); };
+  const dbGetAll = () => new Promise(resolve => {
+    if (!_db) return resolve([]);
+    const req = _db.transaction('images').objectStore('images').getAll();
+    req.onsuccess = e => resolve(e.target.result);
+    req.onerror   = () => resolve([]);
+  });
+
+  /* =====================================================
+     State
+  ===================================================== */
+  const MAX = 10;
+  const KEY = 'miteorder-admin-works';
+  let works = [];
+
+  function load()  { const s = localStorage.getItem(KEY); works = s ? JSON.parse(s) : []; }
+  function save()  { localStorage.setItem(KEY, JSON.stringify(works)); updateCount(); }
+  function updateCount() {
+    document.getElementById('worksCount').textContent = `${works.length} / ${MAX}件`;
+    document.getElementById('btnAdd').disabled = works.length >= MAX;
+  }
+  const uid = () => 'w' + Date.now() + Math.random().toString(36).slice(2,5);
+
+  /* =====================================================
+     Works CRUD
+  ===================================================== */
+  function addWork() {
+    if (works.length >= MAX) return;
+    const id = uid();
+    works.push({ id, name: '', concept: '', bgColor: '#2d1b3d', tags: [], imageKeys: [] });
+    save();
+    render();
+    const card = document.querySelector(`.work-card[data-id="${id}"]`);
+    if (card) { card.classList.add('open'); card.querySelector('.field-input').focus(); }
+  }
+
+  function removeWork(id) {
+    const w = works.find(x => x.id === id);
+    if (!w) return;
+    if (!confirm(`「${w.name || '（無題）'}」を削除しますか？`)) return;
+    w.imageKeys.forEach(k => dbDel(k));
+    works = works.filter(x => x.id !== id);
+    save(); render();
+  }
+
+  function updateField(id, field, value) {
+    const w = works.find(x => x.id === id);
+    if (!w) return;
+    w[field] = value;
+    if (field === 'name') {
+      const el = document.querySelector(`.work-card[data-id="${id}"] .work-name-preview`);
+      if (el) el.textContent = value || '（無題）';
+    }
+    save();
+  }
+
+  /* =====================================================
+     Tags
+  ===================================================== */
+  function addTag(id, tag) {
+    const w = works.find(x => x.id === id);
+    tag = (tag || '').trim();
+    if (!w || !tag || w.tags.includes(tag)) return;
+    w.tags.push(tag);
+    save(); renderTags(id);
+  }
+  function removeTag(id, tag) {
+    const w = works.find(x => x.id === id);
+    if (!w) return;
+    w.tags = w.tags.filter(t => t !== tag);
+    save(); renderTags(id);
+  }
+  function renderTags(id) {
+    const w    = works.find(x => x.id === id);
+    const wrap = document.querySelector(`.tag-input-wrap[data-id="${id}"]`);
+    if (!w || !wrap) return;
+    const input = wrap.querySelector('.tag-input');
+    wrap.querySelectorAll('.tag-pill').forEach(p => p.remove());
+    w.tags.forEach(tag => {
+      const pill = document.createElement('span');
+      pill.className = 'tag-pill';
+      pill.innerHTML = `${esc(tag)}<button onclick="removeTag('${id}','${esc(tag)}')">×</button>`;
+      wrap.insertBefore(pill, input);
+    });
+  }
+
+  /* =====================================================
+     Images
+  ===================================================== */
+  let _imgTarget = null;
+
+  function openImgUpload(id) {
+    _imgTarget = id;
+    document.getElementById('imgInput').click();
+  }
+
+  async function handleImgUpload(e) {
+    const files = Array.from(e.target.files);
+    if (!files.length || !_imgTarget) return;
+    const id = _imgTarget;
+    const w  = works.find(x => x.id === id);
+    if (!w) return;
+
+    for (const file of files) {
+      const dataURL = await readAsDataURL(file);
+      const label   = file.name.replace(/\.[^.]+$/, '');
+      const key     = `img-${id}-${Date.now()}-${Math.random().toString(36).slice(2,4)}`;
+      await dbPut(key, dataURL, label);
+      w.imageKeys.push(key);
+    }
+    save();
+    await renderThumbs(id);
+    e.target.value = '';
+  }
+
+  async function removeImg(workId, key) {
+    const w = works.find(x => x.id === workId);
+    if (!w) return;
+    dbDel(key);
+    w.imageKeys = w.imageKeys.filter(k => k !== key);
+    save();
+    await renderThumbs(workId);
+  }
+
+  async function updateImgLabel(workId, key, label) {
+    const img = await dbGet(key);
+    if (!img) return;
+    await dbPut(key, img.dataURL, label);
+  }
+
+  async function renderThumbs(id) {
+    const w   = works.find(x => x.id === id);
+    const box = document.querySelector(`.image-thumbs[data-id="${id}"]`);
+    if (!w || !box) return;
+    box.innerHTML = '';
+    for (const key of w.imageKeys) {
+      const img = await dbGet(key);
+      if (!img) continue;
+      const div = document.createElement('div');
+      div.className = 'image-thumb';
+      div.innerHTML = `
+        <img src="${img.dataURL}" alt="${esc(img.label)}">
+        <span class="image-thumb-label">${esc(img.label)}</span>
+        <button class="image-thumb-remove" onclick="removeImg('${id}','${key}')">×</button>`;
+      box.appendChild(div);
+    }
+  }
+
+  /* =====================================================
+     Render
+  ===================================================== */
+  function render() {
+    const container = document.getElementById('worksEditor');
+    if (works.length === 0) {
+      container.innerHTML = `<div class="empty-state">
+        <p>まだ実績がありません。</p>
+        <button class="btn btn-primary" onclick="addWork()">＋ 最初の実績を追加する</button>
+      </div>`;
+      updateCount();
+      return;
+    }
+    container.innerHTML = works.map((w, i) => `
+      <div class="work-card" data-id="${w.id}">
+        <div class="work-card-header" onclick="toggleCard('${w.id}')">
+          <span class="work-number">${i + 1}</span>
+          <span class="work-name-preview">${esc(w.name) || '（無題）'}</span>
+          <button class="btn btn-danger" onclick="event.stopPropagation();removeWork('${w.id}')">削除</button>
+          <span class="work-card-toggle">▼</span>
+        </div>
+        <div class="work-card-body">
+          <div class="field">
+            <label class="field-label">案件名</label>
+            <input class="field-input" type="text" value="${esc(w.name)}" placeholder="例：エリザ・ローズ"
+              oninput="updateField('${w.id}','name',this.value)">
+          </div>
+          <div class="field">
+            <label class="field-label">コンセプト</label>
+            <textarea class="field-textarea" placeholder="世界観・制作のポイントなど"
+              oninput="updateField('${w.id}','concept',this.value)">${esc(w.concept)}</textarea>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label">タグ（Enterで追加）</label>
+              <div class="tag-input-wrap" data-id="${w.id}">
+                <input class="tag-input" type="text" placeholder="ロゴ, 配信画面 …"
+                  onkeydown="if(event.key==='Enter'||event.key===','){addTag('${w.id}',this.value);this.value='';event.preventDefault();}">
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label">背景色</label>
+              <div class="color-row">
+                <input type="color" value="${w.bgColor}"
+                  oninput="updateField('${w.id}','bgColor',this.value);this.nextElementSibling.textContent=this.value.toUpperCase()">
+                <span class="color-hex">${w.bgColor.toUpperCase()}</span>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field-label">画像（複数可・スクロール表示されます）</label>
+            <div class="image-area">
+              <div class="image-thumbs" data-id="${w.id}"></div>
+              <button class="btn btn-outline btn-sm" onclick="openImgUpload('${w.id}')">＋ 画像を追加</button>
+            </div>
+          </div>
+        </div>
+      </div>`).join('');
+
+    works.forEach(w => { renderTags(w.id); renderThumbs(w.id); });
+    updateCount();
+  }
+
+  function toggleCard(id) {
+    document.querySelector(`.work-card[data-id="${id}"]`)?.classList.toggle('open');
+  }
+
+  /* =====================================================
+     Export
+  ===================================================== */
+  async function exportConfig() {
+    const allImgs = await dbGetAll();
+    const imgMap  = Object.fromEntries(allImgs.map(i => [i.key, i]));
+
+    const config = works
+      .filter(w => w.name && w.name.trim())
+      .map(w => ({
+        id:      w.id,
+        name:    w.name,
+        concept: w.concept,
+        bgColor: w.bgColor,
+        tags:    w.tags,
+        images:  w.imageKeys
+          .map(k => imgMap[k])
+          .filter(Boolean)
+          .map(i => ({ src: i.dataURL, label: i.label }))
+      }));
+
+    const js = `// Generated by MiteOrder Admin — ${new Date().toLocaleDateString('ja-JP')}\nwindow.WORKS_CONFIG = ${JSON.stringify(config, null, 2)};\n`;
+    const blob = new Blob([js], { type: 'application/javascript' });
+    const a = Object.assign(document.createElement('a'), {
+      href: URL.createObjectURL(blob),
+      download: 'works-config.js'
+    });
+    a.click();
+    URL.revokeObjectURL(a.href);
+
+    const sizeKB = (blob.size / 1024).toFixed(0);
+    document.getElementById('exportSize').textContent = `（${sizeKB} KB）`;
+    const res = document.getElementById('exportResult');
+    res.classList.add('show');
+    setTimeout(() => res.classList.remove('show'), 8000);
+  }
+
+  /* =====================================================
+     Utils
+  ===================================================== */
+  function esc(s) {
+    return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function readAsDataURL(file) {
+    return new Promise(r => { const fr = new FileReader(); fr.onload = e => r(e.target.result); fr.readAsDataURL(file); });
+  }
+
+  /* =====================================================
+     Init
+  ===================================================== */
+  document.getElementById('imgInput').addEventListener('change', handleImgUpload);
+
+  initDB().then(() => { load(); render(); });
+</script>
+</body>
+</html>

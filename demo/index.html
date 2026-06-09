@@ -360,6 +360,8 @@
       .hero-inner { grid-template-columns: 1fr; gap: 24px; }
       .hero-cards { display: none; }
       .hero-title { font-size: 28px; }
+      .feature-card { grid-template-columns: 1fr; }
+      .feature-gallery-wrap { height: 220px; }
     }
 
     /* 受付ステータスバッジ */
@@ -510,67 +512,67 @@
       overflow: hidden;
     }
 
-    .feature-main-wrap {
+    /* ギャラリー（横スクロール・scroll-snap） */
+    .feature-gallery-wrap {
       position: relative;
       height: 280px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .feature-main-img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      z-index: 1;
-    }
-    .feature-main-label {
-      font-size: 14px;
-      color: rgba(255,255,255,0.75);
-      font-weight: 700;
-      position: relative;
-      z-index: 0;
-    }
-
-    .feature-thumbs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      padding: 10px;
-      background: var(--color-bg-alt);
-    }
-    .feature-thumb {
-      width: 60px;
-      height: 44px;
-      border-radius: 6px;
       overflow: hidden;
-      cursor: pointer;
-      border: 2px solid transparent;
-      transition: border-color 0.15s;
-      position: relative;
-      flex-shrink: 0;
     }
-    .feature-thumb:hover, .feature-thumb.active { border-color: var(--color-primary); }
-    .feature-thumb img {
+    .feature-gallery {
+      display: flex;
+      height: 100%;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .feature-gallery::-webkit-scrollbar { display: none; }
+    .feature-gallery-item {
+      flex-shrink: 0;
+      width: 100%;
+      height: 100%;
+      scroll-snap-align: start;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .feature-gallery-item img {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
     }
-    .feature-thumb span {
+    .feature-gallery-label {
       position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 8px;
-      color: rgba(255,255,255,0.75);
-      font-weight: 700;
-      text-align: center;
-      padding: 2px;
+      bottom: 8px;
+      right: 10px;
+      background: rgba(0,0,0,0.45);
+      color: #fff;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 99px;
+      pointer-events: none;
+      z-index: 2;
     }
+    .feature-gallery-dots {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 5px;
+      z-index: 5;
+    }
+    .feature-gallery-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+      transition: background 0.2s;
+    }
+    .feature-gallery-dot.active { background: #fff; }
 
     .feature-card-right {
       padding: 28px 24px;
@@ -1318,6 +1320,9 @@
     <button class="cp-reset" onclick="resetColors()">デフォルトに戻す</button>
   </div>
 
+  <!-- works-config.js が存在すれば優先して読み込む（なければ JS 内のデフォルトデータを使用） -->
+  <script src="works-config.js" onerror="void 0"></script>
+
   <!-- ===========================================================
        JavaScript
        =========================================================== -->
@@ -1609,51 +1614,52 @@
        実績セクション構築
        ---------------------------------------------------------- */
     function buildWorks() {
+      const worksData = (typeof window.WORKS_CONFIG !== 'undefined')
+        ? window.WORKS_CONFIG.filter(w => w.name && w.name.trim())
+        : WORKS;
+
       const container = document.getElementById('worksContainer');
-      container.innerHTML = '<div class="works-list">' + WORKS.map(work => {
-        const main = work.images[0];
-        const hasMultiple = work.images.length > 1;
-        const thumbsHtml = hasMultiple ? `
-          <div class="feature-thumbs" id="thumbs-${work.id}">
-            ${work.images.map((img, i) => `
-              <div class="feature-thumb${i === 0 ? ' active' : ''}"
-                   style="background:${work.bgColor}"
-                   onclick="switchWorkImage('${work.id}','${img.src}','${img.label}',this)">
-                <img src="${img.src}" loading="lazy" onerror="this.remove()">
-                <span>${img.label}</span>
-              </div>`).join('')}
-          </div>` : '';
+      if (worksData.length === 0) { container.innerHTML = ''; return; }
+
+      container.innerHTML = '<div class="works-list">' + worksData.map(work => {
+        const hasImages = work.images && work.images.length > 0;
+        const galleryItems = hasImages
+          ? work.images.map(img => `
+              <div class="feature-gallery-item">
+                <img src="${img.src}" alt="${img.label || ''}" loading="lazy"
+                     onerror="this.closest('.feature-gallery-item').style.display='none'">
+                ${img.label ? `<span class="feature-gallery-label">${img.label}</span>` : ''}
+              </div>`).join('')
+          : `<div class="feature-gallery-item" style="color:rgba(255,255,255,0.35);font-size:13px;font-weight:700;">${work.name}</div>`;
+
+        const dots = hasImages && work.images.length > 1
+          ? `<div class="feature-gallery-dots" id="dots-${work.id}">
+               ${work.images.map((_, i) => `<span class="feature-gallery-dot${i === 0 ? ' active' : ''}"></span>`).join('')}
+             </div>` : '';
+
         return `
           <div class="feature-card">
-            <div class="feature-card-left">
-              <div class="feature-main-wrap" id="main-${work.id}" style="background:${work.bgColor}">
-                <img class="feature-main-img" src="${main.src}" alt="${main.label}" loading="lazy" onerror="this.remove()">
-                <span class="feature-main-label">${work.name}</span>
+            <div class="feature-gallery-wrap" style="background:${work.bgColor}">
+              <div class="feature-gallery" id="gallery-${work.id}"
+                   onscroll="updateGalleryDots('${work.id}',this)">
+                ${galleryItems}
               </div>
-              ${thumbsHtml}
+              ${dots}
             </div>
             <div class="feature-card-right">
               <p class="feature-name">${work.name}</p>
-              <div class="tag-list">${work.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+              <div class="tag-list">${(work.tags || []).map(t => `<span class="tag">${t}</span>`).join('')}</div>
               <p class="feature-concept">${work.concept}</p>
             </div>
           </div>`;
       }).join('') + '</div>';
     }
 
-    function switchWorkImage(workId, src, label, thumbEl) {
-      const wrap = document.getElementById('main-' + workId);
-      let img = wrap.querySelector('.feature-main-img');
-      if (!img) {
-        img = document.createElement('img');
-        img.className = 'feature-main-img';
-        img.onerror = () => img.remove();
-        wrap.appendChild(img);
-      }
-      img.src = src;
-      img.alt = label;
-      document.querySelectorAll('#thumbs-' + workId + ' .feature-thumb').forEach(t => t.classList.remove('active'));
-      thumbEl.classList.add('active');
+    function updateGalleryDots(workId, galleryEl) {
+      const dotsEl = document.getElementById('dots-' + workId);
+      if (!dotsEl) return;
+      const idx = Math.round(galleryEl.scrollLeft / galleryEl.offsetWidth);
+      dotsEl.querySelectorAll('.feature-gallery-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
     }
 
     /* ----------------------------------------------------------
