@@ -1336,6 +1336,32 @@
   <!-- works-config.js が存在すれば優先して読み込む（なければ JS 内のデフォルトデータを使用） -->
   <script src="works-config.js" onerror="void 0"></script>
 
+  <!-- Firebase Firestore（依頼フォームの送信先） -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js';
+    import { getFirestore, collection, addDoc, serverTimestamp }
+      from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js';
+
+    const app = initializeApp({
+      apiKey:            "AIzaSyDJHxIUuFnXroBDAtB5gq63yF8nDmYcfG8",
+      authDomain:        "mimilyapp.firebaseapp.com",
+      projectId:         "mimilyapp",
+      storageBucket:     "mimilyapp.firebasestorage.app",
+      messagingSenderId: "747711014249",
+      appId:             "1:747711014249:web:45b449233e1383189c49f8"
+    });
+    const db = getFirestore(app);
+
+    window.submitRequest = async function(data) {
+      const ref = await addDoc(collection(db, 'requests'), {
+        ...data,
+        status:      'pending',
+        submittedAt: serverTimestamp(),
+      });
+      return ref.id;
+    };
+  </script>
+
   <!-- ===========================================================
        JavaScript
        =========================================================== -->
@@ -1623,9 +1649,55 @@
        フォーム送信
        本番では Formspree / Netlify Forms 等に置き換えること
        ---------------------------------------------------------- */
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
       e.preventDefault();
-      alert('送信ありがとうございます！\n2〜3営業日以内にご返信します。');
+      const form = e.target;
+      const btn  = form.querySelector('.btn-submit');
+
+      const selectedItems = ESTIMATE_ITEMS.filter(item => {
+        const cb = document.getElementById('cb-' + item.id);
+        return cb && cb.checked;
+      });
+
+      const data = {
+        activityName:  form.activity_name.value.trim(),
+        email:         form.email.value.trim(),
+        activityUrl:   form.activity_url.value.trim(),
+        request:       form.request.value.trim(),
+        budget:        form.budget.value.trim(),
+        deadline:      form.deadline.value.trim(),
+        notes:         form.notes.value.trim(),
+        estimateItems: selectedItems.map(i => ({ id: i.id, name: i.name, price: i.price })),
+        estimateTotal: selectedItems.reduce((s, i) => s + i.price, 0),
+      };
+
+      btn.textContent = '送信中...';
+      btn.disabled    = true;
+
+      try {
+        await window.submitRequest(data);
+
+        /* 送信後リセット */
+        form.reset();
+        ESTIMATE_ITEMS.forEach(item => {
+          const cb = document.getElementById('cb-' + item.id);
+          if (cb) cb.checked = false;
+        });
+        updateTotal();
+        localStorage.removeItem(ESTIMATE_STORAGE_KEY);
+
+        btn.textContent         = '送信完了 ✓';
+        btn.style.background    = 'var(--color-primary-dark)';
+      } catch (err) {
+        console.error('Firestore write error:', err);
+        btn.textContent      = '送信に失敗しました';
+        btn.style.background = '#e74c3c';
+        btn.disabled         = false;
+        setTimeout(() => {
+          btn.textContent      = '依頼を送信する';
+          btn.style.background = '';
+        }, 4000);
+      }
     }
 
     /* ----------------------------------------------------------
