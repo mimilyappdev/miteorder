@@ -1193,15 +1193,15 @@
         <form onsubmit="handleSubmit(event)">
           <div class="form-group">
             <label class="form-label">活動名 <span class="req">*</span></label>
-            <input type="text" name="activity_name" class="form-input" placeholder="例：エリザ・ローズ" required>
+            <input type="text" name="activity_name" class="form-input" placeholder="例：白犬ふわわ" required>
           </div>
           <div class="form-group">
             <label class="form-label">ご連絡先メールアドレス <span class="req">*</span></label>
             <input type="email" name="email" class="form-input" placeholder="例：example@email.com" required>
           </div>
           <div class="form-group">
-            <label class="form-label">活動URL（SNS等）</label>
-            <input type="url" name="activity_url" class="form-input" placeholder="https://twitter.com/...">
+            <label class="form-label">活動URL（SNS等） <span class="req">※</span></label>
+            <input type="url" name="activity_url" class="form-input" placeholder="https://twitter.com/..." required>
           </div>
           <div class="form-group">
             <label class="form-label">ご依頼内容 <span class="req">*</span></label>
@@ -1352,12 +1352,19 @@
     });
     const db = getFirestore(app);
 
+    const GAS_URL    = 'https://script.google.com/macros/s/AKfycbzEm_PwMXDHhQvlf6r33vjuhhyUap24xCXWkKeqxbC6bKgT0Cwx2p6a78qYYbEg1wZBeQ/exec';
+    const GAS_SECRET = 'miteorder-secret-2026';
+
     window.submitRequest = async function(data) {
       const ref = await addDoc(collection(db, 'requests'), {
         ...data,
         status:      'pending',
         submittedAt: serverTimestamp(),
       });
+      fetch(GAS_URL, {
+        method: 'POST',
+        body: JSON.stringify({ secret: GAS_SECRET, data }),
+      }).catch(() => {});
       return ref.id;
     };
   </script>
@@ -1471,7 +1478,7 @@
     const WORKS = [
       {
         id: 'eliza-rose',
-        name: 'エリザ・ローズ',
+        name: '白犬ふわわ',
         concept: '薔薇と騎士モチーフで全媒体を統一。世界観の核をビジュアルに落とし込みました。',
         bgColor: '#2d1b3d',
         tags: ['ロゴ', '配信画面', '待機画面', 'PV', 'チャンネルアート'],
